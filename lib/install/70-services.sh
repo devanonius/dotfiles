@@ -12,16 +12,55 @@ unit_exists() {
   systemctl "${scope[@]}" list-unit-files "$1.service" --no-legend 2>/dev/null | grep -q .
 }
 
+# Other network managers archinstall may have set up. Running one of these
+# next to NetworkManager makes them fight over the Wi-Fi card, which shows up
+# as "authentication failed" with the right password.
+NETWORK_CONFLICTS=(iwd systemd-networkd dhcpcd connman)
+NM_DEFER=0   # 1: switch to NetworkManager at the next boot, not now
+
+network_handover() {
+  local svc found=()
+  for svc in "${NETWORK_CONFLICTS[@]}"; do
+    systemctl is-enabled --quiet "$svc.service" 2>/dev/null && found+=("$svc")
+  done
+
+  # NetworkManager told to drive Wi-Fi through iwd, which this setup drops.
+  local conf
+  for conf in /etc/NetworkManager/conf.d/*.conf /etc/NetworkManager/NetworkManager.conf; do
+    [[ -f $conf ]] && grep -Eq '^[[:space:]]*wifi\.backend[[:space:]]*=[[:space:]]*iwd' "$conf" || continue
+    warn "$conf sets wifi.backend=iwd; NetworkManager should use wpa_supplicant"
+    if confirm "Set it aside as $conf.bak?"; then
+      changed "set aside $conf"
+      run sudo mv "$conf" "$conf.bak"
+    fi
+  done
+
+  (( ${#found[@]} )) || return 0
+  warn "also managing the network: ${found[*]} (they conflict with NetworkManager)"
+  if confirm "Disable ${found[*]} and use NetworkManager from the next boot?"; then
+    changed "disable ${found[*]}"
+    # Not --now: the current connection keeps working until the reboot.
+    run sudo systemctl disable "${found[@]/%/.service}"
+    NM_DEFER=1
+    warn "after rebooting, connect to Wi-Fi again in Wayle or with: nmcli --ask device wifi connect <SSID>"
+  else
+    warn "leaving ${found[*]} enabled; NetworkManager is not enabled to avoid the conflict"
+    NM_DEFER=2
+  fi
+}
+
 enable_system() {
   local svc
   for svc in "${SYSTEM_SERVICES[@]}"; do
-    if ! unit_exists "$svc"; then
+    if [[ $svc == NetworkManager ]] && (( NM_DEFER == 2 )); then
+      info "NetworkManager: skipped (another network manager is in use)"
+    elif ! unit_exists "$svc"; then
       info "$svc: not installed, skipped"
     elif systemctl is-enabled --quiet "$svc.service" 2>/dev/null; then
       info "$svc: enabled"
     else
       changed "enable $svc"
-      if systemd_running; then
+      if systemd_running && ! { [[ $svc == NetworkManager ]] && (( NM_DEFER )); }; then
         run sudo systemctl enable --now "$svc.service"
       else
         run sudo systemctl enable "$svc.service"   # starts on next boot
@@ -111,6 +150,7 @@ stage_main() {
     (( DRY_RUN )) && { info "systemctl not available here; skipped"; return 0; }
     die "systemctl not found"
   fi
+  network_handover
   enable_system
   enable_user
   greeter

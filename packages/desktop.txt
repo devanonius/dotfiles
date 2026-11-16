@@ -23,6 +23,7 @@ wireplumber
 
 # services Wayle depends on
 networkmanager
+wpa_supplicant    # NetworkManager's Wi-Fi backend (iwd is excluded)
 bluez
 bluez-utils
 upower
