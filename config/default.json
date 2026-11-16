@@ -6,6 +6,7 @@
     "keyd": true
   },
   "hardware": true,
+  "nvidia_driver": "auto",
   "fonts": "ask",
   "greeter": "keep",
   "extra_packages": {

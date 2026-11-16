@@ -22,6 +22,12 @@ stage_main() {
       info "hardware: $hw (packages/hardware/$hw.txt)"
       mapfile -t -O "${#want[@]}" want < <(read_list "$DOTFILES_DIR/packages/hardware/$hw.txt")
     done < <(hardware_lists)
+    if (( HAS_NVIDIA )); then
+      local nv=()
+      mapfile -t nv < <(nvidia_packages repo "$(config_get '.nvidia_driver // "auto"')")
+      info "nvidia: $(nvidia_summary)${nv[*]:+ (${nv[*]})}"
+      want+=("${nv[@]}")
+    fi
   else
     info "hardware: skipped (\"hardware\": false)"
   fi

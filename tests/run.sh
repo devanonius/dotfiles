@@ -102,6 +102,36 @@ themes_valid() {
   done
 }
 check "themes have valid metadata" themes_valid
+
+# NVIDIA driver choice from a fake /sys: generation by PCI device id, kernel
+# variant, AUR legacy branch, and keeping an installed driver.
+nvidia_choice() {
+  local root id expect got
+  root=$(mktemp -d)
+  mkdir -p "$root/sys/bus/pci/devices/0" "$root/etc"
+  echo 0x030000 > "$root/sys/bus/pci/devices/0/class"
+  echo 0x10de > "$root/sys/bus/pci/devices/0/vendor"
+  : > "$root/etc/pacman.conf"
+  while IFS='|' read -r id kernels installed source expect; do
+    echo "$id" > "$root/sys/bus/pci/devices/0/device"
+    got=$(DOTFILES_SYSROOT=$root KERN="$kernels $installed" bash -c '
+      source lib/common.sh; source lib/detect.sh
+      has_cmd() { return 0; }
+      pacman() { shift; local p r=1; for p; do [[ " $KERN " == *" $p "* ]] && { echo "$p"; r=0; }; done; return $r; }
+      HAS_NVIDIA=1; nvidia_packages "$0" | tr "\n" " "' "$source")
+    [[ ${got% } == "$expect" ]] || { echo "device $id, kernels [$kernels], installed [$installed], $source: got [$got], want [$expect]"; return 1; }
+  done <<'CASES'
+0x2684|linux||repo|nvidia-open nvidia-utils libva-nvidia-driver
+0x2684|linux-lts||repo|nvidia-open-lts nvidia-utils libva-nvidia-driver
+0x2684|linux linux-zen||repo|nvidia-open-dkms linux-headers linux-zen-headers nvidia-utils libva-nvidia-driver
+0x2684|linux||aur|
+0x1b80|linux||repo|linux-headers libva-nvidia-driver
+0x1b80|linux||aur|nvidia-580xx-dkms nvidia-580xx-utils
+0x0fc6|linux||repo|
+0x1b80|linux|nvidia-open-dkms|repo|nvidia-utils libva-nvidia-driver
+CASES
+}
+check "NVIDIA driver choice by GPU generation" nvidia_choice
 check "every template renders with every theme" python3 tests/fake-wal.py --check stow/wal/.config/wal/templates themes/*/colors.json
 if [[ -n $LUAC ]]; then
   rendered_lua() {

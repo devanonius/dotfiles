@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# dot-monitors: write ~/.config/hypr/local/monitors.lua for this machine.
+#
+#   dot-monitors          write it if it does not exist (run on every login)
+#   dot-monitors --force  rewrite it from the monitors connected now
+#
+# Only for more than one monitor: every output at its preferred mode, placed
+# left to right as they are now, workspaces 1-5 on the leftmost monitor and
+# 6-10 on the next. The file is yours afterwards; edit it or use nwg-displays.
+set -euo pipefail
+
+file="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/local/monitors.lua"
+force=0
+[[ ${1:-} == --force ]] && force=1
+
+[[ -f $file && $force == 0 ]] && exit 0
+command -v hyprctl >/dev/null && command -v jq >/dev/null || exit 0
+[[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] || { echo "dot-monitors: not inside Hyprland" >&2; exit 1; }
+
+mapfile -t outputs < <(hyprctl monitors -j | jq -r 'sort_by(.x, .y) | .[].name')
+if (( ${#outputs[@]} < 2 )); then
+  (( force )) && echo "dot-monitors: one monitor; the shared default (preferred mode, auto position) is enough"
+  exit 0
+fi
+
+mkdir -p "$(dirname "$file")"
+{
+  echo "-- Written by dot-monitors on $(date +%F) for ${#outputs[@]} monitors. Yours to edit"
+  echo "-- (modes: hyprctl monitors all; or use nwg-displays). Rewrite: dot-monitors --force"
+  for out in "${outputs[@]}"; do
+    echo "hl.monitor({ output = \"$out\", mode = \"preferred\", position = \"auto-right\", scale = \"auto\" })"
+  done
+  echo
+  echo "-- Workspaces 1-5 on ${outputs[0]}, 6-10 on ${outputs[1]}."
+  echo "for i = 1, 5 do hl.workspace_rule({ workspace = tostring(i), monitor = \"${outputs[0]}\" }) end"
+  echo "for i = 6, 10 do hl.workspace_rule({ workspace = tostring(i), monitor = \"${outputs[1]}\" }) end"
+} > "$file"
+hyprctl reload >/dev/null
+echo "dot-monitors: wrote $file"

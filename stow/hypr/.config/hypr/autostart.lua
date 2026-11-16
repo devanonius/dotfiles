@@ -17,4 +17,6 @@ hl.on("hyprland.start", function()
   start("wayle", "wayle panel start")
   start("walker", "walker --gapplication-service")
   start("cliphist", "wl-paste --watch cliphist store")
+  -- With several monitors, write local/monitors.lua once (no-op afterwards).
+  start("monitors", "dot-monitors")
 end)

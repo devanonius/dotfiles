@@ -110,24 +110,32 @@ link_cli() {
   done
 }
 
-# Wayle's config.toml imports layout.toml; point it at the layout for this
-# kind of machine (desktops get no battery module: Wayle cannot hide it and
-# would show "0"). Wayle refuses the whole config if the import is missing,
-# so this always runs after stow.
-link_wayle_layout() {
-  local dir="$HOME/.config/wayle" kind=desktop src target
-  (( ${IS_LAPTOP:-0} )) && kind=laptop
-  src="$DOTFILES_DIR/$STOW_DIR_REL/wayle/.config/wayle/layout-$kind.toml"
-  target="$dir/layout.toml"
+# Some configs differ between laptops and desktops. The tracked repo has
+# both variants; a link next to them selects this machine's one:
+#   ~/.config/wayle/layout.toml -> layout-<kind>.toml  (desktops: no battery,
+#     which Wayle cannot hide and would show as "0")
+#   ~/.config/hypr/idle.conf    -> idle-<kind>.conf    (hypridle timeouts)
+# Wayle and hypridle need the file to exist, so this runs on every install
+# right after stow.
+link_machine_variant() {
+  local dir=$1 link=$2 src=$3 kind=$4 target
   [[ -f $src ]] || return 0
+  target="$dir/$link"
   [[ -L $target && $(readlink -f "$target") == "$(readlink -f "$src")" ]] && return 0
   if [[ -e $target && ! -L $target ]]; then
-    warn "$(pretty "$target") is a regular file; leaving it (remove it to use the $kind layout)"
+    warn "$(pretty "$target") is a regular file; leaving it (remove it to use the $kind variant)"
     return 0
   fi
-  changed "Wayle layout: $kind"
+  changed "$(pretty "$target") -> $kind"
   run mkdir -p "$dir"
   run ln -sfn "$src" "$target"
+}
+
+link_machine_files() {
+  local kind=desktop root="$DOTFILES_DIR/$STOW_DIR_REL"
+  (( ${IS_LAPTOP:-0} )) && kind=laptop
+  link_machine_variant "$HOME/.config/wayle" layout.toml "$root/wayle/.config/wayle/layout-$kind.toml" "$kind"
+  link_machine_variant "$HOME/.config/hypr" idle.conf "$root/hypr/.config/hypr/idle-$kind.conf" "$kind"
 }
 
 stage_main() {
@@ -161,5 +169,5 @@ stage_main() {
   fi
 
   link_cli
-  link_wayle_layout
+  link_machine_files
 }

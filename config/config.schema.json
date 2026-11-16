@@ -59,6 +59,16 @@
       "type": "boolean",
       "description": "Install the packages/hardware/ lists that match the detected CPU, GPUs and battery (default true)."
     },
+    "nvidia_driver": {
+      "enum": [
+        "auto",
+        "open",
+        "580xx",
+        "none"
+      ],
+      "default": "auto",
+      "description": "NVIDIA driver: auto picks by GPU generation (open kernel modules for Turing and newer, nvidia-580xx-dkms from the AUR for Maxwell to Volta) and keeps a driver that is already installed; none installs no driver."
+    },
     "fonts": {
       "description": "Nerd Fonts from packages/fonts/nerd-fonts.txt: \"ask\" (pick from a list once, remembered; run `dot fonts` to change), \"all\", \"none\", or a list of package names.",
       "oneOf": [

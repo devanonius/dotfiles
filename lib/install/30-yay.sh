@@ -94,7 +94,11 @@ stage_main() {
   fi
 
   local listed=() missing=() pkg
-  mapfile -t listed < <({ read_list "$DOTFILES_DIR/packages/aur.txt"; config_extra aur; } | sed '/^$/d' | dedupe)
+  local nvidia=()
+  if [[ $(config_get 'if has("hardware") then .hardware else true end') == true ]]; then
+    mapfile -t nvidia < <(nvidia_packages aur "$(config_get '.nvidia_driver // "auto"')")
+  fi
+  mapfile -t listed < <({ read_list "$DOTFILES_DIR/packages/aur.txt"; config_extra aur; printf '%s\n' "${nvidia[@]}"; } | sed '/^$/d' | dedupe)
   if (( ${#listed[@]} == 0 )); then
     info "no AUR packages listed"
     return 0
