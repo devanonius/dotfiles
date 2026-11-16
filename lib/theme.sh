@@ -9,6 +9,7 @@
 #   3. sets GTK's dark/light preference from the theme's variant
 #   4. tells running apps to reload (each hook: 2 s timeout, never fatal)
 #   5. runs ~/.config/dotfiles/hooks/theme-set.d/* with the theme id as $1
+#   6. shows a notification with the new theme's name
 
 THEMES_DIR="$DOTFILES_DIR/themes"
 THEME_STATE="$DOTFILES_STATE/theme"
@@ -101,7 +102,25 @@ theme_reload() {
   fi
   [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] && has_cmd hyprctl && hook hyprctl reload
   hook pkill -USR2 -x ghostty
-  # Wayle follows pywal itself; Walker reloads style.css itself.
+  theme_wayle
+  # Walker reloads style.css itself.
+}
+
+# Wayle: write the palette through its CLI, which applies it live and keeps
+# it in ~/.config/wayle/runtime.toml for the next start.
+theme_wayle() {
+  local key value
+  has_cmd wayle && [[ -f $WAL_CACHE/wayle-palette ]] || return 0
+  while read -r key value; do
+    [[ -n $key ]] && hook wayle config set "$key" "$value"
+  done < "$WAL_CACHE/wayle-palette"
+}
+
+# Say which theme is now active, for the keybind and the picker.
+theme_notify() {
+  [[ -n ${WAYLAND_DISPLAY:-} ]] && has_cmd notify-send || return 0
+  hook notify-send -a dotfiles -i preferences-desktop-theme \
+    "Theme: $(theme_meta "$1" name)" "$(theme_meta "$1" variant) · dot theme list"
 }
 
 theme_user_hooks() {
@@ -132,6 +151,7 @@ theme_set() {
   theme_reload "$variant"
   theme_user_hooks "$id"
   flock -u "$lock"
+  theme_notify "$id"
 }
 
 # Fingerprint of everything that shapes the rendered theme, so the installer

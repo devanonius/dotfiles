@@ -18,5 +18,8 @@ right = ["systray", "media", "volume", "network", "bluetooth", "battery", "notif
 format = "%a %x  %X"
 
 [styling]
-# Colors follow pywal (~/.cache/wal/colors.json), set by `dot theme set`.
-theme-provider = "pywal"
+# Colors come from the active dotfiles theme: `dot theme set` writes
+# styling.palette.* with `wayle config set` (stored in runtime.toml).
+# Wayle's own "pywal" provider would extract colors from the wallpaper
+# instead, ignoring the theme.
+theme-provider = "wayle"

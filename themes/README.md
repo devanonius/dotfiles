@@ -19,6 +19,7 @@ every theme maps UI roles to the same palette slots:
 | accent / second accent | color4 / color5 |
 | borders, muted text, inactive | color8 |
 | raised surfaces (cards, popups) | color0 |
+| secondary text (Wayle fg-muted) | color7 |
 | error / warning / success | color1 / color3 / color2 |
 
 Wallpapers go in `backgrounds/<id>/` at the repo root.

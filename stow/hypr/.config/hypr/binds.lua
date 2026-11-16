@@ -11,6 +11,7 @@ hl.bind(mod .. " + V", hl.dsp.exec_cmd("cliphist list | walker --dmenu | cliphis
 hl.bind(mod .. " + ESCAPE", run("dot-power-menu"))
 hl.bind(mod .. " + CTRL + L", run(apps.locker))
 hl.bind(mod .. " + SHIFT + T", hl.dsp.exec_cmd("dot theme next"))
+hl.bind(mod .. " + CTRL + SHIFT + SPACE", hl.dsp.exec_cmd("dot-theme-picker"))
 
 -- Windows
 hl.bind(mod .. " + Q", hl.dsp.window.close())

@@ -171,7 +171,7 @@ A switch never edits a tracked file: the renderer writes a fresh directory, the 
 - **`dot theme set`** (`lib/theme.sh`): `wal -q -n -e --theme …` (`-n`: Wayle owns the wallpaper; `-e`: no pywal reloads) → link the apps that cannot include a file → GTK `color-scheme` and `gtk-theme` from `variant` → reload hooks (2 s timeout, never fatal) → user hooks in `~/.config/dotfiles/hooks/theme-set.d/`. Also `dot theme list | current | next | prev`; `SUPER+SHIFT+T` = next.
 - **Install stage `80-theme`** applies the active theme (default `tokyonight-night`) only when the theme or a template changed (fingerprint in `~/.local/state/dotfiles/theme/`).
 - **Tests:** `tests/fake-wal.py` renders every template with every theme exactly as pywal does (fails on unescaped braces or unknown variables); the rendered Hyprland Lua is syntax-checked.
-- **Still to verify on hardware:** Wayle's `theme-provider = "pywal"` value and whether it picks up changes live; Walker's CSS class names; pywal16's package name `python-pywal16`.
+- **Still to verify on hardware:** whether `wayle config set styling.palette.<key> "#hex"` applies live (Wayle uses `theme-provider = "wayle"`; its `pywal` provider extracts colors from the wallpaper and ignores the theme); Walker's CSS class names; pywal16's package name `python-pywal16`.
 
 The palette schema, template syntax and activation steps below describe the earlier custom-renderer design and are kept only for reference; where they differ, this section and `themes/README.md` win.
 

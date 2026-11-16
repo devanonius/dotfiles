@@ -46,3 +46,6 @@ qt6ct
 ttf-jetbrains-mono-nerd
 noto-fonts
 noto-fonts-emoji
+
+# notify-send, for `dot theme set` notifications
+libnotify

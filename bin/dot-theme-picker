@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Theme picker (SUPER+CTRL+SHIFT+SPACE): choose a theme in Walker's dmenu mode.
+# The active theme is marked with a dot; picking one runs `dot theme set`.
+set -euo pipefail
+
+DOTFILES_DIR=${DOTFILES_DIR:-$HOME/dotfiles}
+themes=$DOTFILES_DIR/themes
+current=$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/theme/name" 2>/dev/null || true)
+
+menu=() ids=()
+for dir in "$themes"/*/; do
+  id=$(basename "$dir")
+  [[ -f $dir/theme.json && -f $dir/colors.json ]] || continue
+  label=$(jq -r '"\(.name) (\(.variant))"' "$dir/theme.json")
+  [[ $id == "$current" ]] && label="● $label" || label="   $label"
+  menu+=("$label") ids+=("$id")
+done
+
+choice=$(printf '%s\n' "${menu[@]}" | walker --dmenu --placeholder "Theme" 2>/dev/null || true)
+[[ -n $choice ]] || exit 0
+
+for i in "${!menu[@]}"; do
+  if [[ ${menu[$i]} == "$choice" ]]; then
+    exec dot theme set "${ids[$i]}"
+  fi
+done
