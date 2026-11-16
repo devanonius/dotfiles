@@ -37,6 +37,13 @@ enable_user() {
     warn "no systemd user session here; user services skipped (re-run from your own login)"
     return 0
   fi
+  generate_user_units
+
+  # Inside a running desktop session, start what we enable right away;
+  # otherwise the services start with the next login.
+  local now=()
+  systemctl --user is-active --quiet graphical-session.target 2>/dev/null && now=(--now)
+
   for svc in "${USER_SERVICES[@]}"; do
     if ! unit_exists --user "$svc"; then
       info "$svc (user): not installed, skipped"
@@ -44,9 +51,20 @@ enable_user() {
       info "$svc (user): enabled"
     else
       changed "enable user service $svc"
-      run systemctl --user enable "$svc.service"
+      run systemctl --user enable "${now[@]}" "$svc.service"
     fi
   done
+}
+
+# Some programs don't ship a unit file but can write one themselves.
+# elephant (Walker's backend) is one: without its service Walker only shows
+# "Waiting for elephant...".
+generate_user_units() {
+  if has_cmd elephant && ! unit_exists --user elephant; then
+    changed "generate user service elephant"
+    run elephant service enable
+    run systemctl --user daemon-reload
+  fi
 }
 
 # The display manager archinstall set up (if any), e.g. cosmic-greeter.
