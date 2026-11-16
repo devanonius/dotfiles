@@ -1,0 +1,21 @@
+{
+  "$schema": "./config.schema.json",
+  "modules": {
+    "desktop": true,
+    "user": true,
+    "keyd": true
+  },
+  "hardware": true,
+  "fonts": "ask",
+  "greeter": "keep",
+  "extra_packages": {
+    "pacman": [],
+    "aur": [],
+    "flatpak": []
+  },
+  "flatpak": {
+    "scope": "user",
+    "remote": "flathub",
+    "remote_url": "https://dl.flathub.org/repo/flathub.flatpakrepo"
+  }
+}

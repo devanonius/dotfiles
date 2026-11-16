@@ -1,0 +1,27 @@
+# Wayle: bar, notifications, OSD and wallpaper. Reloads on save.
+# Every key: `wayle config default --stdout` or https://wayle.app/config/
+# Colors here are Tokyo Night until the theme engine (phase 3) takes over.
+
+[bar]
+location = "top"
+
+[[bar.layout]]
+monitor = "*"
+left = ["dashboard", "hyprland-workspaces", "window-title"]
+center = ["clock"]
+right = ["systray", "media", "volume", "network", "bluetooth", "battery", "notification"]
+
+[modules.clock]
+# %X = time in the user's locale. Override per machine in phase 6
+# (install config: statusbar.clock_format).
+format = "%a %x  %X"
+
+[styling]
+theme-provider = "wayle"
+
+[styling.palette]
+bg = "#1a1b26"
+fg = "#c0caf5"
+fg-muted = "#565f89"
+elevated = "#292e42"
+primary = "#7aa2f7"

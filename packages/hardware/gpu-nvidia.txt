@@ -1,0 +1,5 @@
+# Installed when an NVIDIA display controller is found (PCI vendor 0x10de).
+# Intentionally empty until phase 6: the driver package depends on the GPU
+# generation (open kernel modules for Turing and newer, a legacy branch for
+# older cards), and installing the wrong *-utils package conflicts with the
+# right one. Phase 6 adds the detection and fills this in.

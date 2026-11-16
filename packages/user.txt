@@ -1,0 +1,56 @@
+# Owner's own packages (official repos). Hardware drivers, fonts and the
+# login greeter are NOT listed here: they come from packages/hardware/,
+# the font picker, and the greeter setting. Regenerate with:
+#   tools/generate-user-list.sh
+base
+base-devel
+bat
+bluez
+bluez-utils
+chromium
+cups
+cups-pk-helper
+dolphin
+fastfetch
+firewalld
+ghostscript
+ghostty
+git
+grim
+gst-plugin-pipewire
+htop
+hyprland
+kitty
+libc++
+libpulse
+llvm
+lsd
+man-db
+man-pages
+nano
+nautilus
+neovim
+openssh
+pipewire
+pipewire-alsa
+pipewire-jack
+pipewire-pulse
+power-profiles-daemon
+qt5-wayland
+qt6-wayland
+slurp
+smartmontools
+sudo
+system-config-printer
+uwsm
+vim
+wget
+wireplumber
+xdg-desktop-portal-hyprland
+xdg-utils
+zram-generator
+zsh
+zsh-autocomplete
+zsh-autosuggestions
+zsh-completions
+zsh-syntax-highlighting

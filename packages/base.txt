@@ -1,0 +1,40 @@
+# Official-repo packages installed on every machine.
+# One package per line; '#' starts a comment. No package groups.
+# Verify names on Arch with: dot packages check
+
+# build + bootstrap
+base-devel
+git
+stow
+python
+curl
+wget
+unzip
+pciutils
+
+# shell (Oh My Zsh comes from the AUR list)
+zsh
+zsh-theme-powerlevel10k
+zsh-autosuggestions
+zsh-syntax-highlighting
+zsh-completions
+fzf
+bat
+lsd
+zoxide
+jq
+man-db
+
+# editor (LazyVim requirements)
+neovim
+ripgrep
+fd
+lazygit
+tree-sitter-cli
+lua              # luac checks the Hyprland Lua config (tests)
+nodejs
+npm
+
+# monitoring
+btop
+fastfetch

@@ -1,0 +1,9 @@
+# Everything is checked out with LF line endings, also on Windows,
+# because these files are only ever run on Linux.
+* text=auto eol=lf
+
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.webp binary
+*.gif  binary

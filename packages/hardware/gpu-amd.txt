@@ -1,0 +1,3 @@
+# Installed when an AMD display controller is found (PCI vendor 0x1002).
+# xf86-video-* drivers are for Xorg only and are not needed on Wayland.
+vulkan-radeon

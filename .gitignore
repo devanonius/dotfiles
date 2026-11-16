@@ -1,0 +1,12 @@
+# Generated output never lives in the repo; it goes to ~/.local/state/dotfiles.
+*.log
+__pycache__/
+*.pyc
+
+# Machine-local files, if ever created inside the repo by mistake
+/local/
+
+# OS clutter
+.DS_Store
+Thumbs.db
+desktop.ini

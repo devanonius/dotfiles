@@ -1,0 +1,9 @@
+# Login shell: PATH, then start Hyprland on tty1 when no login screen did.
+typeset -U path
+path=("$HOME/.local/bin" $path)
+export EDITOR=nvim VISUAL=nvim
+
+# uwsm decides whether a graphical session may start here (tty1, none running).
+if command -v uwsm >/dev/null && uwsm check may-start; then
+  exec uwsm start hyprland.desktop
+fi

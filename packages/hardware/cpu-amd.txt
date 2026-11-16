@@ -1,0 +1,2 @@
+# Installed when the CPU vendor is AuthenticAMD (/proc/cpuinfo).
+amd-ucode

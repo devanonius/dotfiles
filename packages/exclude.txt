@@ -1,0 +1,8 @@
+# Packages this rice replaces. They are dropped from every module and
+# hardware list (but not from extra_packages, which is always explicit),
+# and tools/generate-user-list.sh leaves them out of user.txt.
+dunst             # notifications: Wayle
+wofi              # launcher: Walker
+polkit-kde-agent  # polkit agent: hyprpolkitagent
+iwd               # Wi-Fi: NetworkManager (Wayle needs it)
+eza               # ls replacement: lsd

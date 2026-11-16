@@ -1,0 +1,7 @@
+alias ls='lsd'
+alias ll='lsd -l'
+alias la='lsd -la'
+alias lt='lsd --tree'
+alias cat='bat --paging=never'
+alias vim='nvim'
+alias lg='lazygit'

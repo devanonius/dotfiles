@@ -1,0 +1,22 @@
+{
+  "$schema": "./config.schema.json",
+  "modules": {
+    "user": false
+  },
+  "extra_packages": {
+    "pacman": [
+      "firefox",
+      "obsidian"
+    ],
+    "aur": [
+      "visual-studio-code-bin"
+    ],
+    "flatpak": [
+      "com.spotify.Client"
+    ]
+  },
+  "fonts": [
+    "ttf-firacode-nerd",
+    "ttf-iosevka-nerd"
+  ]
+}

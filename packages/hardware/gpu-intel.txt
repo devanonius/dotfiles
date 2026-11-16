@@ -1,0 +1,7 @@
+# Installed when an Intel display controller is found (PCI vendor 0x8086).
+# Hardware video decoding (VA-API) for Broadwell and newer, Vulkan, and
+# oneVPL for Tiger Lake and newer.
+# Very old GPUs (before Broadwell) need libva-intel-driver instead.
+intel-media-driver
+vulkan-intel
+vpl-gpu-rt

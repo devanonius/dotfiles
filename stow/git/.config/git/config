@@ -1,0 +1,16 @@
+# Shared git settings. Name, email and signing key live in
+# ~/.config/git/local (untracked); the installer asks for them once.
+[include]
+    path = ~/.config/git/local
+[init]
+    defaultBranch = main
+[pull]
+    rebase = true
+[push]
+    autoSetupRemote = true
+[rebase]
+    autoStash = true
+[core]
+    pager = bat --paging=always --style=plain
+[diff]
+    colorMoved = default

@@ -1,0 +1,33 @@
+# zsh: Oh My Zsh + Powerlevel10k, both from packages (oh-my-zsh-git from
+# the AUR, zsh-theme-powerlevel10k from the repos), so updates come with
+# the system. Personal additions go in ~/.config/zsh/local.zsh (untracked).
+
+# Powerlevel10k instant prompt: keep at the top.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+export ZSH=/usr/share/oh-my-zsh
+export ZSH_CUSTOM=$HOME/.config/zsh/omz-custom
+export ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh
+[[ -d $ZSH_CACHE_DIR ]] || mkdir -p "$ZSH_CACHE_DIR"
+ZSH_THEME=""                 # the prompt is Powerlevel10k, loaded below
+plugins=(git sudo fzf zoxide)
+[[ -r $ZSH/oh-my-zsh.sh ]] && source "$ZSH/oh-my-zsh.sh"
+
+P10K=/usr/share/zsh-theme-powerlevel10k
+if [[ -r $P10K/powerlevel10k.zsh-theme ]]; then
+  source "$P10K/powerlevel10k.zsh-theme"
+  # Your own prompt (from `p10k configure`) wins over the shipped lean style.
+  if [[ -r ~/.p10k.zsh ]]; then source ~/.p10k.zsh; else source "$P10K/config/p10k-lean.zsh"; fi
+fi
+
+for file in ~/.config/zsh/{env,aliases,functions}.zsh ~/.config/zsh/local.zsh; do
+  [[ -r $file ]] && source "$file"
+done
+
+[[ -r /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh ]] &&
+  source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+# Must be sourced last.
+[[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]] &&
+  source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

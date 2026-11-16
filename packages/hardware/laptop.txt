@@ -1,0 +1,3 @@
+# Installed when a battery is found (/sys/class/power_supply/BAT*).
+# Do not add tlp: it conflicts with power-profiles-daemon, which Wayle uses.
+# (empty for now; phase 6 adds laptop-only tools)

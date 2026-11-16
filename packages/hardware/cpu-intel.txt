@@ -1,0 +1,3 @@
+# Installed when the CPU vendor is GenuineIntel (/proc/cpuinfo).
+# Microcode is loaded by the bootloader; archinstall configures this.
+intel-ucode

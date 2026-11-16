@@ -1,0 +1,16 @@
+{
+  "$schema": "../config/config.schema.json",
+  "modules": {
+    "desktop": false,
+    "user": false
+  },
+  "extra_packages": {
+    "pacman": [
+      "tree"
+    ],
+    "aur": [],
+    "flatpak": []
+  },
+  "hardware": false,
+  "fonts": "none"
+}

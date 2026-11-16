@@ -1,0 +1,133 @@
+#!/usr/bin/env bash
+# dot: the single entry point for managing these dotfiles.
+set -Eeuo pipefail
+
+DOTFILES_DIR=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)
+export DOTFILES_DIR
+# shellcheck source=lib/common.sh
+source "$DOTFILES_DIR/lib/common.sh"
+
+usage() {
+  cat <<'EOF'
+Usage: dot <command> [args]
+
+  install [flags]     run install.sh, e.g. dot install -c my.json (see --help)
+  update [flags]      git pull --rebase, then dot install --yes [flags]
+  restow              re-link configs only (install stage "stow")
+  fonts               pick Nerd Fonts again from the list and install them
+  packages list [-c FILE]   packages that apply to this machine and config
+  packages check [-c FILE]  verify every package name exists (repos, AUR, flatpak)
+  help                show this help
+
+Coming in later phases: theme, doctor, edit, browser.
+EOF
+}
+
+cmd_update() {
+  local dir=$DOTFILES_DIR
+  git -C "$dir" rev-parse --git-dir >/dev/null 2>&1 || die "$dir is not a git repository"
+  if ! git -C "$dir" diff --quiet || ! git -C "$dir" diff --cached --quiet; then
+    git -C "$dir" status --short
+    die "uncommitted changes in $dir; commit or stash them, then run dot update again"
+  fi
+  log "pulling $dir"
+  git -C "$dir" pull --rebase
+  exec bash "$dir/install.sh" --yes "$@"
+}
+
+cmd_packages() {
+  local sub=list
+  if (( $# )) && [[ $1 != -* ]]; then sub=$1; shift; fi
+  while (( $# )); do
+    case $1 in
+      -c|--config) [[ -f ${2:-} ]] || die "config file not found: ${2:-}"; CONFIG_FILE=$(readlink -f "$2"); shift ;;
+      *) die "unknown option: $1" ;;
+    esac
+    shift
+  done
+
+  # shellcheck source=lib/config.sh
+  source "$DOTFILES_DIR/lib/config.sh"
+  # shellcheck source=lib/detect.sh
+  source "$DOTFILES_DIR/lib/detect.sh"
+  config_load
+  detect_all
+
+  local module pkg
+  case $sub in
+    list)
+      while read -r module; do
+        printf '%s# module %s (packages/%s.txt, pacman)%s\n' "$C_BOLD" "$module" "$module" "$C_RESET"
+        read_list "$DOTFILES_DIR/packages/$module.txt"
+      done < <(enabled_modules)
+      if [[ $(config_get 'if has("hardware") then .hardware else true end') == true ]]; then
+        while read -r module; do
+          printf '%s# hardware %s (packages/hardware/%s.txt, detected)%s\n' "$C_BOLD" "$module" "$module" "$C_RESET"
+          read_list "$DOTFILES_DIR/packages/hardware/$module.txt"
+        done < <(hardware_lists)
+      fi
+      printf '%s# fonts ("%s")%s\n' "$C_BOLD" "$(config_fonts_mode)" "$C_RESET"
+      case $(config_fonts_mode) in
+        list) config_fonts_list ;;
+        all)  read_list "$DOTFILES_DIR/packages/fonts/nerd-fonts.txt" ;;
+        ask)  if [[ -f $DOTFILES_STATE/fonts.txt ]]; then read_list "$DOTFILES_STATE/fonts.txt"; else echo "(not picked yet: dot fonts)"; fi ;;
+      esac
+      printf '%s# packages/aur.txt (yay)%s\n' "$C_BOLD" "$C_RESET"
+      read_list "$DOTFILES_DIR/packages/aur.txt"
+      printf '%s# never installed (packages/exclude.txt)%s\n' "$C_BOLD" "$C_RESET"
+      read_list "$DOTFILES_DIR/packages/exclude.txt"
+      for kind in pacman aur flatpak; do
+        printf '%s# extra_packages.%s (config)%s\n' "$C_BOLD" "$kind" "$C_RESET"
+        config_extra "$kind"
+      done
+      ;;
+    check)
+      require_cmd pacman
+      local bad=0 file
+      # Every module file, not only enabled ones, so a typo is caught on any machine.
+      while read -r pkg; do
+        pacman -Si -- "$pkg" >/dev/null 2>&1 || { warn "'$pkg' not found in the official repos"; bad=1; }
+      done < <({ for file in "$DOTFILES_DIR"/packages/*.txt "$DOTFILES_DIR"/packages/hardware/*.txt "$DOTFILES_DIR"/packages/fonts/*.txt; do
+                   case $(basename "$file") in aur.txt|exclude.txt) ;; *) read_list "$file" ;; esac
+                 done; config_extra pacman; } | dedupe)
+      if has_cmd yay; then
+        while read -r pkg; do
+          yay -Si -- "$pkg" >/dev/null 2>&1 || { warn "'$pkg' not found in the AUR"; bad=1; }
+        done < <({ read_list "$DOTFILES_DIR/packages/aur.txt"; config_extra aur; } | dedupe)
+      else
+        warn "yay not installed; AUR names not checked"
+      fi
+      if [[ -n $(config_extra flatpak) ]]; then
+        if has_cmd flatpak; then
+          local remote; remote=$(config_get '.flatpak.remote // "flathub"')
+          while read -r pkg; do
+            flatpak remote-info "$remote" "$pkg" >/dev/null 2>&1 || { warn "flatpak '$pkg' not found on $remote"; bad=1; }
+          done < <(config_extra flatpak)
+        else
+          warn "flatpak not installed; flatpak ids not checked"
+        fi
+      fi
+      (( bad )) && die "some package names are wrong (see warnings above)"
+      log "all package names resolve"
+      ;;
+    *) die "unknown: dot packages $sub. Use: list | check [-c FILE]" ;;
+  esac
+}
+
+main() {
+  local cmd=${1:-help}
+  (( $# )) && shift
+  case $cmd in
+    install)        exec bash "$DOTFILES_DIR/install.sh" "$@" ;;
+    update)         cmd_update "$@" ;;
+    restow)         exec bash "$DOTFILES_DIR/install.sh" --only stow "$@" ;;
+    fonts)          rm -f "$DOTFILES_STATE/fonts.txt"; exec bash "$DOTFILES_DIR/install.sh" --only fonts "$@" ;;
+    packages|pkg)   cmd_packages "$@" ;;
+    help|-h|--help) usage ;;
+    theme|doctor|edit|browser)
+      die "'dot $cmd' is not implemented yet (see docs/SPEC.md, Implementation phases)" ;;
+    *) usage >&2; die "unknown command: $cmd" ;;
+  esac
+}
+
+main "$@"

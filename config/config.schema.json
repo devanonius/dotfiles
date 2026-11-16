@@ -1,0 +1,92 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "dotfiles install config",
+  "description": "Overlays config/default.json. Arrays replace, objects merge.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "modules": {
+      "description": "Package modules: each key is packages/<key>.txt. base, aur and exclude cannot be listed. \"auto\" means true (kept for compatibility).",
+      "type": "object",
+      "additionalProperties": {
+        "enum": [
+          true,
+          false,
+          "auto"
+        ]
+      }
+    },
+    "extra_packages": {
+      "description": "Packages on top of the modules, for this machine or this config only.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "pacman": {
+          "$ref": "#/definitions/names"
+        },
+        "aur": {
+          "$ref": "#/definitions/names"
+        },
+        "flatpak": {
+          "$ref": "#/definitions/names",
+          "description": "Flatpak application ids, e.g. com.spotify.Client"
+        }
+      }
+    },
+    "flatpak": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "scope": {
+          "enum": [
+            "user",
+            "system"
+          ],
+          "description": "user: no root needed (default). system: installs for all users with sudo."
+        },
+        "remote": {
+          "type": "string"
+        },
+        "remote_url": {
+          "type": "string"
+        }
+      }
+    },
+    "hardware": {
+      "type": "boolean",
+      "description": "Install the packages/hardware/ lists that match the detected CPU, GPUs and battery (default true)."
+    },
+    "fonts": {
+      "description": "Nerd Fonts from packages/fonts/nerd-fonts.txt: \"ask\" (pick from a list once, remembered; run `dot fonts` to change), \"all\", \"none\", or a list of package names.",
+      "oneOf": [
+        {
+          "enum": [
+            "ask",
+            "all",
+            "none"
+          ]
+        },
+        {
+          "$ref": "#/definitions/names"
+        }
+      ]
+    },
+    "greeter": {
+      "type": "string",
+      "pattern": "^(keep|[a-z0-9][a-z0-9._+-]*)$",
+      "description": "\"keep\" (default): leave the login screen archinstall set up alone. Or a package whose systemd service has the same name (e.g. \"sddm\", \"greetd\") to install and enable when no other greeter is enabled."
+    }
+  },
+  "definitions": {
+    "names": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9@_+][A-Za-z0-9@._+-]*$"
+      }
+    }
+  }
+}

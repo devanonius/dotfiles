@@ -1,0 +1,47 @@
+# Official-repo packages for the Hyprland session.
+# Verify names on Arch with: dot packages check
+
+# compositor + session
+hyprland
+hypridle
+hyprlock
+hyprpicker
+hyprpolkitagent
+uwsm
+xdg-desktop-portal-hyprland
+xdg-desktop-portal-gtk
+qt5-wayland
+qt6-wayland
+
+# terminal
+ghostty
+
+# audio
+pipewire
+pipewire-pulse
+wireplumber
+
+# services Wayle depends on
+networkmanager
+bluez
+bluez-utils
+upower
+power-profiles-daemon
+
+# screenshots, clipboard, media keys
+grim
+slurp
+wl-clipboard
+cliphist
+brightnessctl
+playerctl
+
+# GTK / Qt theming
+adw-gtk-theme
+nwg-look
+qt6ct
+
+# fonts (individual Nerd Fonts, not the multi-GB nerd-fonts group)
+ttf-jetbrains-mono-nerd
+noto-fonts
+noto-fonts-emoji

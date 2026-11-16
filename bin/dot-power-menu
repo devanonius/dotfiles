@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Power menu (SUPER+ESCAPE): pick an action in Walker's dmenu mode.
+set -euo pipefail
+
+choice=$(printf '%s\n' "  Lock" "󰤄  Suspend" "  Log out" "  Reboot" "  Shut down" |
+  walker --dmenu --placeholder "Power" 2>/dev/null || true)
+
+case $choice in
+  *Lock)       loginctl lock-session ;;
+  *Suspend)    systemctl suspend ;;
+  *"Log out")  uwsm stop ;;
+  *Reboot)     systemctl reboot ;;
+  *"Shut down") systemctl poweroff ;;
+  *)           exit 0 ;;
+esac

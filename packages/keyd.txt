@@ -1,0 +1,3 @@
+# Module "keyd": key remapping daemon. Its config is system/keyd/ (copied
+# to /etc/keyd/ by stage 55-system), its service is in system/keyd.service.
+keyd
