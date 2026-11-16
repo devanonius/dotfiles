@@ -47,7 +47,7 @@ Configs are deployed with GNU Stow, orchestrated by a small bash installer; gene
 - **No default greeter.** archinstall lets the user pick a display manager (the owner's machine uses cosmic-greeter), so the installer keeps whatever is enabled. Config key `greeter`: `"keep"` (default) or a package name to install and enable. With no display manager enabled, log in on tty1 and start Hyprland through `uwsm` from `.zprofile`.
 - **Replaced packages** never install from module or hardware lists (`packages/exclude.txt`): dunst (Wayle does notifications), wofi (Walker), polkit-kde-agent (hyprpolkitagent), iwd (NetworkManager, which Wayle needs), eza (lsd).
 - **Hardware packages are detected, fonts are picked.** CPU microcode and GPU drivers come from `packages/hardware/`; Nerd Fonts from a pick-list (`fonts` config key, `dot fonts`).
-- **Build as little as possible.** Prefer existing tools (pywal16 for theming, Stow for links) and only fill the gaps.
+- **Build as little as possible.** Prefer existing tools (pywal16 for theming, Stow for links) and only fill the gaps. AUR packages are always the prebuilt -bin variant when one exists (2026-11-16: a test install spent 30 minutes compiling); stage 30-yay swaps in -bin variants for listed packages and their AUR dependencies and warns about anything it must still build.
 - **Keep Arch-specific code separate.** pacman, yay and package lists live in their own stages; linking, theming and config files must not depend on them, so they can be reused on another distro later.
 - **Wallpapers** live in `backgrounds/<theme-id>/` at the repo root (the owner adds them by hand), not in `themes/<id>/backgrounds/`.
 

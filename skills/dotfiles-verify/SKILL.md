@@ -14,7 +14,7 @@ Run the checks in order and stop at the first failure; fix it, then restart from
 3. Renderer tests (from phase 3): `python3 -m unittest discover -s tests` -- covers every placeholder modifier, an unknown key failing with template name + line, and rendering every theme in `themes/`.
 4. Every `themes/*/colors.toml` parses with `tomllib` and has the full key set; contrast thresholds hold (see dotfiles-add-theme).
 5. No generated files tracked: `git ls-files` contains nothing under a rendered theme dir, no `*.log`, nothing machine-local.
-6. Package names resolve: `dot packages check` (skip if offline or not on Arch, and say so).
+6. Package names resolve: `dot packages check` (skip if offline or not on Arch, and say so). AUR packages must be the prebuilt `-bin` variant whenever one exists; fix every "has a prebuilt" warning.
 
 ## System checks (on an Arch machine)
 

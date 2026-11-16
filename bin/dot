@@ -96,7 +96,11 @@ cmd_packages() {
                  done; config_extra pacman; } | dedupe)
       if has_cmd yay; then
         while read -r pkg; do
-          yay -Si -- "$pkg" >/dev/null 2>&1 || { warn "'$pkg' not found in the AUR"; bad=1; }
+          if ! yay -Si --aur -- "$pkg" >/dev/null 2>&1; then
+            warn "'$pkg' not found in the AUR"; bad=1
+          elif [[ $pkg != *-bin && $pkg != *-git ]] && yay -Si --aur -- "$pkg-bin" >/dev/null 2>&1; then
+            warn "'$pkg' has a prebuilt '$pkg-bin'; list that instead (the installer swaps it in anyway)"
+          fi
         done < <({ read_list "$DOTFILES_DIR/packages/aur.txt"; config_extra aur; } | dedupe)
       else
         warn "yay not installed; AUR names not checked"

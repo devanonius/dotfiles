@@ -1,5 +1,8 @@
 # AUR packages, installed with yay after it is bootstrapped.
-# Check names with: dot packages check
+# Prefer prebuilt packages: list <name>-bin whenever the AUR has one
+# (compiling is slow). The installer swaps in -bin variants for listed
+# names and their AUR dependencies automatically, and warns about anything
+# it still has to build. Check names with: dot packages check
 oh-my-zsh-git        # Oh My Zsh, installed to /usr/share/oh-my-zsh
 wayle-bin            # status bar, notifications, OSD, wallpaper
 walker-bin           # launcher
