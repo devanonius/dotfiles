@@ -49,3 +49,6 @@ noto-fonts-emoji
 
 # notify-send, for `dot theme set` notifications
 libnotify
+
+# blue-light filter, toggled from the bar
+hyprsunset

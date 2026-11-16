@@ -2,20 +2,10 @@
 # Every key: `wayle config default --stdout` or https://wayle.app/config/
 # Settings changed in wayle-settings or `wayle config` go to runtime.toml,
 # so this tracked file stays clean.
-
-[bar]
-location = "top"
-
-[[bar.layout]]
-monitor = "*"
-left = ["dashboard", "hyprland-workspaces", "window-title"]
-center = ["clock"]
-right = ["systray", "media", "volume", "network", "bluetooth", "battery", "notification"]
-
-[modules.clock]
-# %X = time in the user's locale. Override per machine in phase 6
-# (install config: statusbar.clock_format).
-format = "%a %x  %X"
+#
+# Look: a transparent bar with floating "pills": each group below is one
+# rounded island on the surface color. Labels use the theme's text color;
+# only the active workspace uses the accent.
 
 [styling]
 # Colors come from the active dotfiles theme: `dot theme set` writes
@@ -23,3 +13,162 @@ format = "%a %x  %X"
 # Wayle's own "pywal" provider would extract colors from the wallpaper
 # instead, ignoring the theme.
 theme-provider = "wayle"
+
+[bar]
+location = "top"
+background-opacity = 0          # no bar strip, only the pills
+inset-edge = 0.4                # gap to the top of the screen
+inset-ends = 0.5                # gap to the left/right screen edges
+padding = 0.2
+module-gap = 0.5                # gap between pills
+
+button-variant = "basic"        # icon + label, no colored icon block
+button-bg-opacity = 0           # modules sit on their pill's background
+button-border-location = "none"
+button-rounding = "full"
+button-label-weight = "semibold"
+
+button-group-background = "bg-surface"
+button-group-rounding = "full"
+button-group-padding = 0.35
+button-group-module-gap = 0.15
+button-group-border-location = "none"
+
+dropdown-shadow = true
+
+[[bar.layout]]
+monitor = "*"
+left = [
+  { name = "workspaces", modules = ["hyprland-workspaces"] },
+  { name = "stats", modules = [
+    "cpu", "separator", "ram",
+  ] },
+]
+center = [
+  { name = "media", modules = ["media"] },
+  { name = "clock", modules = ["clock"] },
+  { name = "weather", modules = ["weather"] },
+]
+right = [
+  { name = "controls", modules = [
+    "systray", "idle-inhibit", "hyprsunset", "microphone", "volume",
+    "bluetooth", "network", "notifications", "dashboard",
+  ] },
+  { name = "battery", modules = ["battery"] },
+]
+
+[modules.hyprland-workspaces]
+min-workspace-count = 9         # 1-9 always shown
+display-mode = "label"
+active-indicator = "background"
+active-color = "accent"
+occupied-color = "fg-default"
+empty-color = "fg-subtle"
+container-bg-color = "transparent"
+
+[modules.separator]
+color = "fg-subtle"
+length = 1.2
+
+# CPU usage and temperature, memory: labels only, like a status line.
+[modules.cpu]
+# Usage and temperature in one label (Wayle has one [modules.cpu] table).
+format = "{{ percent }}%  ·  {{ temp_c }}°C"
+icon-show = false
+label-color = "fg-default"
+button-bg-color = "transparent"
+
+[modules.ram]
+format = "{{ used_gib }} GiB"
+icon-show = false
+label-color = "fg-default"
+button-bg-color = "transparent"
+
+[modules.media]
+icon-type = "default"
+format = "{{ status_icon }}"    # just play/pause; click for the player
+icon-show = false
+label-color = "fg-default"
+label-max-length = 0
+button-bg-color = "transparent"
+
+[modules.clock]
+# e.g. "Mon, Nov 16  15:50:29". Override per machine with
+# `wayle config set modules.clock.format '...'` (kept in runtime.toml).
+format = "%a, %b %d  %H:%M:%S"
+icon-show = false
+label-color = "fg-default"
+button-bg-color = "transparent"
+dropdown-show-seconds = true
+
+[modules.weather]
+# Set your city: `wayle config set modules.weather.location "Paris"`
+location = "Paris"
+units = "metric"
+time-format = "24h"
+format = "{{ temp }}°"
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+label-color = "fg-default"
+button-bg-color = "transparent"
+
+[modules.battery]
+format = "{{ percent }}"
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+label-color = "fg-default"
+button-bg-color = "transparent"
+
+[modules.notifications]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+popup-position = "top-left"
+popup-margin-x = 0.5
+popup-margin-y = 0.4
+
+# The controls pill: icons only, labels and details in their dropdowns.
+
+[modules.idle-inhibit]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+
+[modules.hyprsunset]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+
+[modules.microphone]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+
+[modules.volume]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+
+[modules.bluetooth]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+
+[modules.network]
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+
+[modules.dashboard]
+icon-color = "fg-default"
+icon-bg-color = "transparent"
+button-bg-color = "transparent"
+# Log out through uwsm, which stops the session's services cleanly.
+dropdown-logout-command = "uwsm stop"
