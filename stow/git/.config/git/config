@@ -14,3 +14,10 @@
     pager = bat --paging=always --style=plain
 [diff]
     colorMoved = default
+[credential]
+    # HTTPS usernames and passwords/tokens go to the Secret Service, which is
+    # KeePassXC here (see ~/.local/share/dbus-1/services). useHttpPath keys
+    # each entry by the full repo URL, so every repo can have its own
+    # username and token. SSH remotes do not use this.
+    helper = /usr/lib/git-core/git-credential-libsecret
+    useHttpPath = true

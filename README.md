@@ -90,6 +90,28 @@ hl.config({ input = { kb_layout = "se" } })
 
 The login screen archinstall set up is kept. Without one, log in on tty1 and Hyprland starts from `~/.zprofile` through uwsm.
 
+## Passwords and git credentials
+
+KeePassXC is the password manager and the system's Secret Service (the
+D-Bus password store apps use). git saves HTTPS usernames and passwords or
+personal access tokens there through `git-credential-libsecret`, one entry
+per repository URL (`credential.useHttpPath`), so different repos can use
+different accounts and tokens. Everything stays in your KeePassXC database.
+
+One-time setup in KeePassXC (it starts in the tray at login):
+
+1. Create or open your database.
+2. Database > Database Settings > Secret Service Integration: choose the group
+   that apps may use (e.g. a new group "Secret Service").
+3. Tools > Settings > Secret Service Integration is already switched on by
+   the installer; leave it on.
+
+The first `git push` or `git pull` over HTTPS to a repo asks for the username
+and password/token once and stores it in that group; later runs ask KeePassXC
+(which may ask you to unlock the database). To change a token, edit or delete
+the entry in KeePassXC. SSH remotes use your SSH key instead. `dot doctor`
+warns if another Secret Service (GNOME Keyring, KWallet) has taken over.
+
 ## How configs are deployed
 
 Each folder in `stow/` mirrors your home folder and is linked file by file (`stow --no-folding --dotfiles`). A name starting with `dot-` links as `.`: `stow/zsh/dot-zshrc` becomes `~/.zshrc`. Use that for files in your home folder itself; folders like `.config` keep their real names. Editing `~/.config/<app>/...` edits the repo file, so `git diff` shows it straight away; commit and push from here. Files that were in the way are moved to `~/.local/state/dotfiles/backup/<timestamp>/`, never overwritten and never pulled into the repo.

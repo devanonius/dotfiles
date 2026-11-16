@@ -99,6 +99,16 @@ doctor_services() {
   for svc in iwd systemd-networkd dhcpcd connman; do
     systemctl is-active --quiet "$svc" 2>/dev/null && bad "$svc runs next to NetworkManager (Wi-Fi fails; fix: sudo systemctl disable --now $svc, then reboot)"
   done
+  # Secret Service: git credentials go there; only KeePassXC should own it.
+  if has_cmd busctl && busctl --user status >/dev/null 2>&1; then
+    local owner
+    owner=$(busctl --user status org.freedesktop.secrets 2>/dev/null | sed -n 's/^Comm=//p' | head -1 || true)
+    case $owner in
+      keepassxc*) ok "Secret Service provided by KeePassXC" ;;
+      "") ok "Secret Service not running (KeePassXC starts on demand)" ;;
+      *) bad "Secret Service owned by $owner, not KeePassXC (git credentials end up there; remove or disable it)" ;;
+    esac
+  fi
   if systemctl --user show-environment >/dev/null 2>&1; then
     for svc in hypridle hyprpolkitagent elephant; do
       if systemctl --user is-active --quiet "$svc" 2>/dev/null; then ok "$svc (user) running"

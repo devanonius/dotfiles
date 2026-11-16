@@ -37,6 +37,13 @@ cliphist
 brightnessctl
 playerctl
 
+# passwords: KeePassXC is the Secret Service provider (org.freedesktop.secrets),
+# git stores HTTPS credentials in it through git-credential-libsecret (ships
+# with git; needs libsecret). Do not add gnome-keyring or kwallet: only one
+# Secret Service provider can run.
+keepassxc
+libsecret
+
 # GTK / Qt theming
 adw-gtk-theme
 nwg-look
