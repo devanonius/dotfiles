@@ -19,7 +19,12 @@ P10K=/usr/share/zsh-theme-powerlevel10k
 if [[ -r $P10K/powerlevel10k.zsh-theme ]]; then
   source "$P10K/powerlevel10k.zsh-theme"
   # Your own prompt (from `p10k configure`) wins over the shipped lean style.
-  if [[ -r ~/.p10k.zsh ]]; then source ~/.p10k.zsh; else source "$P10K/config/p10k-lean.zsh"; fi
+  if [[ -r ~/.p10k.zsh ]]; then
+    source ~/.p10k.zsh
+  else
+    source "$P10K/config/p10k-lean.zsh"
+    source ~/.config/zsh/p10k-colors.zsh   # theme-following colors for the shipped style
+  fi
 fi
 
 for file in ~/.config/zsh/{env,aliases,functions}.zsh ~/.config/zsh/local.zsh; do

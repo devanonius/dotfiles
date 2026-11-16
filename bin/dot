@@ -15,11 +15,15 @@ Usage: dot <command> [args]
   update [flags]      git pull --rebase, then dot install --yes [flags]
   restow              re-link configs only (install stage "stow")
   fonts               pick Nerd Fonts again from the list and install them
+  theme list          available themes (* = active)
+  theme set <id>      switch every app to a theme
+  theme current       print the active theme id
+  theme next | prev   switch to the next / previous theme
   packages list [-c FILE]   packages that apply to this machine and config
   packages check [-c FILE]  verify every package name exists (repos, AUR, flatpak)
   help                show this help
 
-Coming in later phases: theme, doctor, edit, browser.
+Coming in later phases: doctor, edit, browser.
 EOF
 }
 
@@ -114,6 +118,22 @@ cmd_packages() {
   esac
 }
 
+cmd_theme() {
+  # shellcheck source=lib/theme.sh
+  source "$DOTFILES_DIR/lib/theme.sh"
+  local sub=${1:-list}
+  (( $# )) && shift
+  case $sub in
+    list)    theme_list ;;
+    current) theme_current ;;
+    set)     [[ -n ${1:-} ]] || die "usage: dot theme set <id> (see: dot theme list)"
+             theme_set "$1"; log "theme: $1" ;;
+    next)    local id; id=$(theme_step 1);  theme_set "$id"; log "theme: $id" ;;
+    prev)    local id; id=$(theme_step -1); theme_set "$id"; log "theme: $id" ;;
+    *)       die "unknown: dot theme $sub. Use: list | set <id> | current | next | prev" ;;
+  esac
+}
+
 main() {
   local cmd=${1:-help}
   (( $# )) && shift
@@ -124,7 +144,8 @@ main() {
     fonts)          rm -f "$DOTFILES_STATE/fonts.txt"; exec bash "$DOTFILES_DIR/install.sh" --only fonts "$@" ;;
     packages|pkg)   cmd_packages "$@" ;;
     help|-h|--help) usage ;;
-    theme|doctor|edit|browser)
+    theme)          cmd_theme "$@" ;;
+    doctor|edit|browser)
       die "'dot $cmd' is not implemented yet (see docs/SPEC.md, Implementation phases)" ;;
     *) usage >&2; die "unknown command: $cmd" ;;
   esac

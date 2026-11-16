@@ -10,8 +10,8 @@ The full design is in [docs/SPEC.md](docs/SPEC.md). This README covers day-to-da
 | --- | --- | --- |
 | 1 | Repo skeleton, installer core (preflight, config, detect, pacman, yay, flatpak, stow), `dot` CLI, tests | done |
 | 2 | Hyprland (Lua), hypridle, hyprlock, Ghostty, zsh + Oh My Zsh + Powerlevel10k, Wayle, Walker, git; shell and services stages | done, untested on hardware |
-| 3 | Theme engine (pywal16) | next |
-| 4 | Theme catalog, wallpapers, picker | |
+| 3 | Theme engine (pywal16): `dot theme`, templates for Hyprland, hyprlock, Ghostty, Wayle, Walker, GTK, btop, prompt | done, untested on hardware |
+| 4 | Theme catalog, wallpapers, picker | next |
 | 5 | LazyVim and CLI tooling | |
 | 6 | Hardware profiles, migrations, `dot doctor` | |
 | 7 | Browser (with Vimium) and Qt theming | |
@@ -125,6 +125,18 @@ Machine-specific settings go in untracked files (`~/.config/hypr/local/`, `~/.co
 ## Testing
 
 `tests/run.sh` tests the installer for real on Arch (WSL, a VM, CI); it installs packages, so use a throwaway system. `tests/run.sh --static` only runs the checks that change nothing. `tests/docker.sh` runs everything in a fresh `archlinux` container (needs Docker; on Windows run it from WSL or Git Bash). Both use the small `tests/ci.json` config unless you pass another one.
+
+## Themes
+
+```sh
+dot theme list            # * marks the active theme
+dot theme set gruvbox-dark
+dot theme next            # also SUPER+SHIFT+T
+```
+
+A theme is `themes/<id>/colors.json` (a pywal colorscheme) plus `theme.json` (name, dark/light, Neovim scheme, upstream source); see `themes/README.md`. `dot theme set` runs pywal16, which renders `~/.config/wal/templates/*` (tracked in `stow/wal/`) into `~/.cache/wal/` and recolors open terminals. Then it reloads Hyprland and Ghostty and sets GTK to dark or light. Wayle follows pywal by itself, and Walker reloads its CSS by itself. Nothing tracked changes when you switch, so `git status` stays clean.
+
+To theme another app, add a template to `stow/wal/.config/wal/templates/` and point the app at `~/.cache/wal/<file>` (skill: `dotfiles-add-themed-app`). Your own scripts in `~/.config/dotfiles/hooks/theme-set.d/` run after every switch with the theme id as `$1`.
 
 ## System files (keyd)
 

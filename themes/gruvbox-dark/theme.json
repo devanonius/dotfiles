@@ -1,0 +1,8 @@
+{
+  "name": "Gruvbox Dark",
+  "family": "gruvbox",
+  "variant": "dark",
+  "nvim_plugin": "ellisonleao/gruvbox.nvim",
+  "nvim_scheme": "gruvbox",
+  "source": "https://github.com/morhetz/gruvbox (palette)"
+}

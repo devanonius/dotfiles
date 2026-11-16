@@ -1,6 +1,7 @@
 # Wayle: bar, notifications, OSD and wallpaper. Reloads on save.
 # Every key: `wayle config default --stdout` or https://wayle.app/config/
-# Colors here are Tokyo Night until the theme engine (phase 3) takes over.
+# Settings changed in wayle-settings or `wayle config` go to runtime.toml,
+# so this tracked file stays clean.
 
 [bar]
 location = "top"
@@ -17,11 +18,5 @@ right = ["systray", "media", "volume", "network", "bluetooth", "battery", "notif
 format = "%a %x  %X"
 
 [styling]
-theme-provider = "wayle"
-
-[styling.palette]
-bg = "#1a1b26"
-fg = "#c0caf5"
-fg-muted = "#565f89"
-elevated = "#292e42"
-primary = "#7aa2f7"
+# Colors follow pywal (~/.cache/wal/colors.json), set by `dot theme set`.
+theme-provider = "pywal"

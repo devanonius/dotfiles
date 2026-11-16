@@ -4,3 +4,4 @@ oh-my-zsh-git        # Oh My Zsh, installed to /usr/share/oh-my-zsh
 wayle-bin            # status bar, notifications, OSD, wallpaper
 walker-bin           # launcher
 elephant-all-bin     # Walker's backend with all official providers
+python-pywal16       # theme engine (wal); maintained fork of pywal

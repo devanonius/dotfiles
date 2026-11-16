@@ -1,36 +1,36 @@
 ---
 name: dotfiles-add-theme
-description: Use when adding, importing or fixing a color theme palette (themes/ID/colors.toml) in the Hyprland dotfiles repo, e.g. Tokyo Night, Gruvbox, Catppuccin variants.
+description: Use when adding, importing or fixing a color theme in the Hyprland dotfiles repo (themes/ID/colors.json + theme.json), e.g. Tokyo Night, Gruvbox, Catppuccin variants.
 ---
 
-# Add or fix a theme palette
+# Add or fix a theme
 
-A theme is one directory `themes/<id>/` containing `colors.toml` (required) and optional `overrides/`. Wallpapers live in `backgrounds/<id>/` at the repo root and are added by the owner by hand; never fail on an empty folder. Every app is rendered from `colors.toml`, so a wrong value shows up everywhere.
+A theme is one folder `themes/<id>/` with two files (format: `themes/README.md`):
+
+- `colors.json`: a pywal colorscheme, `{"special": {background, foreground, cursor}, "colors": {color0 .. color15}}`, applied with `wal --theme`.
+- `theme.json`: `name`, `family`, `variant` (`dark` | `light`), `nvim_plugin`, `nvim_scheme`, `source`.
+
+Wallpapers go in `backgrounds/<id>/` at the repo root, added by the owner by hand; nothing may fail on an empty folder.
 
 ## Rules
 
-1. **Never invent colors.** Every value comes from the theme's upstream project (its palette file, or its `extras/` terminal ports). Put the source URL and upstream commit/tag in a comment on line 1 of `colors.toml`.
-2. **Theme id** is lowercase kebab-case `<family>-<variant>` (e.g. `catppuccin-mocha`), unique, and matches the directory name.
-3. **Full key set.** `[meta]`: name, family, variant (dark|light), nvim_plugin, nvim_scheme; optional btop_name, icon_theme. `[colors]`: background, foreground, surface, elevated, muted, border, accent, accent_alt, cursor, selection_bg, selection_fg, red, green, yellow, blue, magenta, cyan, orange, color0..color15. All `#rrggbb`, lowercase.
-4. **Semantic keys** (surface, elevated, muted, border, accent) map to the upstream theme's own UI roles (e.g. tokyonight `bg_dark`, `bg_highlight`, `comment`), not to arbitrary ANSI slots.
-5. **Contrast:** foreground vs background >= 4.5:1, muted vs background >= 3:1, selection_fg vs selection_bg >= 4.5:1. Compute with the WCAG relative-luminance formula (write a tiny python check, do not eyeball). If upstream fails, keep upstream values and note it in the comment.
-6. **Light variants** set `variant = "light"` and a light `icon_theme`.
+1. **Never invent colors.** Copy every value from the theme's upstream project (its palette file or its terminal ports, e.g. `extras/ghostty`). Put the upstream URL in `theme.json` `source`.
+2. **Theme id** is lowercase kebab-case `<family>-<variant>` (e.g. `catppuccin-mocha`) and matches the folder name.
+3. **All 19 colors**, `#rrggbb`, lowercase: background, foreground, cursor, color0-15. color0-15 are the theme's ANSI terminal palette, in ANSI order.
+4. **Role mapping is fixed** (templates rely on it): accent = color4, second accent = color5, borders/muted = color8, raised surfaces = color0. If a theme's color4 is not its natural accent, that is still correct: do not reorder the ANSI palette to suit the UI.
+5. **Contrast check** (WCAG relative luminance, compute it, do not eyeball): foreground vs background >= 4.5:1, color8 vs background >= 3:1. If upstream fails, keep upstream values and note it in the commit.
+6. **Light variants** set `"variant": "light"`; GTK switches to prefer-light automatically.
 
 ## Fast path: seed from Ghostty
 
-`ghostty +list-themes --plain | grep -i <name>` to find a built-in theme, then `tools/import-ghostty-theme <ghostty-name> <id>` to fill background, foreground, cursor, selection and color0..15. Fill the semantic keys and `[meta]` by hand from upstream.
+`ghostty +list-themes --plain | grep -i <name>` finds a built-in theme; its file under `/usr/share/ghostty/themes/` has background, foreground, cursor-color and palette 0-15, which map 1:1 onto `colors.json`. Fill `theme.json` by hand.
 
 ## Themes without a Neovim port (e.g. Esmerald)
 
-Port from the upstream source (e.g. a VS Code theme JSON) into `stow/nvim/.config/nvim/colors/<id>.lua`, set `nvim_plugin = ""`, and keep the upstream license notice at the top of every derived file.
-
-## Neovim mapping
-
-`nvim_plugin` must be declared in `stow/nvim/.config/nvim/lua/plugins/theme.lua` (lazy = true). Confirm `nvim_scheme` exists: `nvim --headless "+colorscheme <scheme>" +qa` exits 0 after `Lazy! sync`.
+Port from the upstream source (e.g. a VS Code theme JSON) into `stow/nvim/.config/nvim/colors/<id>.lua`, set `"nvim_plugin": ""`, and keep the upstream license notice at the top of every derived file.
 
 ## Done when
 
-- `dot-theme-render <id>` succeeds with no unknown-key errors.
-- `dot theme set <id>` then `dot doctor` passes.
-- Theme appears in `dot theme list` under its family, and in the Walker picker.
-- Then run the `dotfiles-verify` skill before committing.
+- `bash tests/run.sh --static` passes (validates metadata and renders every template with every theme).
+- `dot theme set <id>` works and `git status` shows no changed tracked files.
+- `dot theme list` shows it. Then run the `dotfiles-verify` skill before committing.

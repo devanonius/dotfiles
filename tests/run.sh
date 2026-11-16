@@ -78,6 +78,26 @@ if [[ -n $LUAC ]]; then
 else
   skip "Hyprland Lua syntax" "no luac (pacman -S lua)"
 fi
+themes_valid() {
+  local d id
+  for d in themes/*/; do
+    id=$(basename "$d")
+    [[ -f $d/colors.json && -f $d/theme.json ]] || { echo "$id: needs colors.json and theme.json"; return 1; }
+    jq -e '(.name|type=="string") and (.family|type=="string") and (.variant=="dark" or .variant=="light")
+           and (.nvim_scheme|type=="string") and (.source|type=="string")' "$d/theme.json" >/dev/null ||
+      { echo "$id: theme.json needs name, family, variant (dark|light), nvim_scheme, source"; return 1; }
+  done
+}
+check "themes have valid metadata" themes_valid
+check "every template renders with every theme" python3 tests/fake-wal.py --check stow/wal/.config/wal/templates themes/*/colors.json
+if [[ -n $LUAC ]]; then
+  rendered_lua() {
+    local out; out=$(mktemp -d)
+    XDG_CONFIG_HOME=$PWD/stow/wal/.config XDG_CACHE_HOME=$out python3 tests/fake-wal.py --theme themes/tokyonight-night/colors.json &&
+      "$LUAC" -p "$out/wal/colors-hyprland.lua"; local rc=$?; rm -rf "$out"; return $rc
+  }
+  check "rendered Hyprland colors are valid Lua" rendered_lua
+fi
 check_fails "unknown option is rejected" "unknown option" bash install.sh --wat
 check_fails "unknown stage is rejected" "unknown stage" bash install.sh --dry-run --no-packages --only nosuchstage
 

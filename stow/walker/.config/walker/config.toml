@@ -1,0 +1,4 @@
+# Walker. Only what differs from Walker's defaults.
+# The "dotfiles" theme is generated from the active color theme
+# (~/.config/walker/themes/dotfiles/style.css, linked by `dot theme set`).
+theme = "dotfiles"

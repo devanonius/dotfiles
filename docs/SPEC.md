@@ -158,19 +158,22 @@ Rules for the implementer:
 
 ## Theme engine
 
-One `colors.toml` per theme is rendered through `templates/*.tpl` into a staging directory, which is swapped in atomically and then each running app is told to reload; this mirrors Omarchy's palette, template and hook pipeline.
+pywal16 is the theme engine (implemented in phase 3): `dot theme set <id>` runs `wal --theme themes/<id>/colors.json`, which renders the tracked templates in `stow/wal/.config/wal/templates/` into `~/.cache/wal/` and recolors open terminals; apps read their file from there, so switching never edits a tracked file.
 
 &#91;embedded content: theme switch pipeline · 3 inputs, 1 render, 1 swap, 7 consumers\]
 
 A switch never edits a tracked file: the renderer writes a fresh directory, the `current` symlink flips to it, and each app reloads from the same fixed path.
 
-**Decision (2026-11-15): use pywal16 instead of a custom renderer.** The owner wants to rely on existing tools. Phase 3 rewrites this section around pywal16 (the maintained fork of pywal):
+**How it is built (phase 3).** Decided 2026-11-15: use pywal16 instead of a custom renderer, so the repo relies on an existing, maintained tool.
 
-- Each theme is a pywal colorscheme JSON (`themes/<id>.json`: `special` background/foreground/cursor + `colors` color0–color15), applied with `wal --theme themes/<id>.json -n` (`-n`: Wayle owns the wallpaper).
-- Templates live in `stow/wal/.config/wal/templates/` and render to `~/.cache/wal/`; app configs include files from there instead of `~/.local/state/dotfiles/theme/current/`. Semantic shades (surface, elevated, muted) come from pywal16's lighten/darken template methods, or a small per-theme overrides file where upstream defines them exactly.
-- Reuse existing pywal integrations where they exist: pywal16-libadwaita templates for GTK/Qt, pywalfox for Firefox-family browsers, a Chromium pywal integration for Chromium-family browsers.
-- `dot theme set` becomes a thin wrapper: `wal --theme`, then the reload hooks, then non-pywal steps (Neovim colorscheme, GTK prefer-dark/light).
-- Still verify in phase 3: pywal16's exact template syntax and methods, its Arch/AUR package name, and whether running terminals pick up colors through escape sequences (live Ghostty recolor for free).
+- **Theme files:** `themes/<id>/colors.json` (pywal colorscheme: `special` background/foreground/cursor, `colors` color0–color15) and `themes/<id>/theme.json` (`name`, `family`, `variant` dark|light, `nvim_plugin`, `nvim_scheme`, `source`). Format and rules: `themes/README.md`.
+- **Templates** use only pywal's variables (`{color0}`..`{color15}`, `{background}`, `{foreground}`, `{cursor}`, with `.strip`, `.rgb`, `.red/.green/.blue`). pywal fills them with Python `str.format`, so literal braces are doubled (`{{ }}`). UI roles map to fixed slots: accent color4, second accent color5, borders/muted color8, raised surfaces color0, error/warning/success color1/3/2.
+- **`dot theme set`** (`lib/theme.sh`): `wal -q -n -e --theme …` (`-n`: Wayle owns the wallpaper; `-e`: no pywal reloads) → link the apps that cannot include a file → GTK `color-scheme` and `gtk-theme` from `variant` → reload hooks (2 s timeout, never fatal) → user hooks in `~/.config/dotfiles/hooks/theme-set.d/`. Also `dot theme list | current | next | prev`; `SUPER+SHIFT+T` = next.
+- **Install stage `80-theme`** applies the active theme (default `tokyonight-night`) only when the theme or a template changed (fingerprint in `~/.local/state/dotfiles/theme/`).
+- **Tests:** `tests/fake-wal.py` renders every template with every theme exactly as pywal does (fails on unescaped braces or unknown variables); the rendered Hyprland Lua is syntax-checked.
+- **Still to verify on hardware:** Wayle's `theme-provider = "pywal"` value and whether it picks up changes live; Walker's CSS class names; pywal16's package name `python-pywal16`.
+
+The palette schema, template syntax and activation steps below describe the earlier custom-renderer design and are kept only for reference; where they differ, this section and `themes/README.md` win.
 
 **Palette schema (`themes/<id>/colors.toml`).** All keys required unless marked optional; colors are `#rrggbb`.
 
@@ -448,7 +451,7 @@ These need an answer before or during implementation; the implementer uses the s
 - [x] **Full package list:** provided in `packages/user.txt`, cleaned 2026-11-15: hardware drivers, fonts, greeter, kernel/bootloader and replaced packages moved out.
 - [x] **Light themes:** decided: keep Tokyo Night Day, Gruvbox Light and Catppuccin Latte (and Esmerald Light) in v1.
 - [x] **Extra themes:** decided: keep Everforest, Kanagawa and Rose Pine for now.
-- [ ] **Repo name and location:** default `~/dotfiles`, public GitHub repo (needed for the curl-run bootstrap URL).
+- [ ] **Repo name and location:** de`cided: https://github.com/devanonius/dotfiles (branch main), cloned to ~/dotfiles. bootstrap.sh is implemented: curl -fsSL https://raw.githubusercontent.com/devanonius/dotfiles/main/bootstrap.sh | bash`
 - [x] **Browser and Qt theming:** decided: phase 7, with an installer prompt for the browser and Vimium installed and themed (see Browser and Qt theming).
 - [x] **Wallpapers:** decided: the owner adds them by hand to `backgrounds/<theme-id>/` at the repo root. Until a folder has images, the theme falls back to a solid background color, and no script may fail on an empty folder.
 - [x] **Hyprland config format:** decided: Lua only, Hyprland 0.55 or newer.
