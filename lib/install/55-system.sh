@@ -50,8 +50,12 @@ handle_services() {
       info "$unit: systemctl not available, skipped"
     elif ! systemctl is-enabled --quiet "$unit.service" 2>/dev/null; then
       changed "enable and start $unit"
-      run sudo systemctl enable --now "$unit.service"
-    elif (( MODULE_CHANGED )); then
+      if systemd_running; then
+        run sudo systemctl enable --now "$unit.service"
+      else
+        run sudo systemctl enable "$unit.service"   # starts on next boot
+      fi
+    elif (( MODULE_CHANGED )) && systemd_running; then
       changed "restart $unit (its files changed)"
       run sudo systemctl restart "$unit.service"
     fi

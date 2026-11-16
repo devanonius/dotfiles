@@ -21,7 +21,11 @@ enable_system() {
       info "$svc: enabled"
     else
       changed "enable $svc"
-      run sudo systemctl enable --now "$svc.service"
+      if systemd_running; then
+        run sudo systemctl enable --now "$svc.service"
+      else
+        run sudo systemctl enable "$svc.service"   # starts on next boot
+      fi
     fi
   done
 }

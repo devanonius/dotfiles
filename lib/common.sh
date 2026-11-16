@@ -41,6 +41,9 @@ run() {
 # Print a path with $HOME shown as ~.
 pretty() { local tilde='~'; printf '%s' "${1/#$HOME/$tilde}"; }
 
+# True when systemd is the running init (not in a chroot or a container).
+systemd_running() { [[ -d /run/systemd/system ]]; }
+
 has_cmd()     { command -v "$1" >/dev/null 2>&1; }
 require_cmd() { has_cmd "$1" || die "required command not found: $1"; }
 

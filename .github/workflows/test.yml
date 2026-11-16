@@ -1,0 +1,42 @@
+# Runs tests/run.sh in a fresh Arch Linux container: static checks
+# (syntax, shellcheck, config validation, Hyprland Lua syntax), then a real
+# install with tests/ci.json, then a second install that must change nothing.
+name: test
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  arch:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+    timeout-minutes: 30
+    steps:
+      - name: Prepare the container
+        run: |
+          pacman -Syu --noconfirm --needed sudo git base-devel shellcheck lua jq
+          # makepkg refuses to run as root, so the tests run as a sudo user.
+          useradd -m tester
+          echo 'tester ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/tester
+
+      - uses: actions/checkout@v4
+
+      - name: Run the tests as a normal user
+        run: |
+          cp -r "$GITHUB_WORKSPACE" /home/tester/dotfiles
+          chown -R tester:tester /home/tester/dotfiles
+          su - tester -c 'cd ~/dotfiles && bash tests/run.sh tests/ci.json'
+
+      - name: Upload installer logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: install-logs
+          path: /home/tester/.local/state/dotfiles/logs/
+          if-no-files-found: ignore
