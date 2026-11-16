@@ -116,6 +116,13 @@ theme_wayle() {
   done < "$WAL_CACHE/wayle-palette"
 }
 
+# Neovim reads the theme's plugin and colorscheme from this file
+# (stow/nvim/.config/nvim/lua/plugins/theme.lua). JSON strings are valid Lua.
+theme_nvim() {
+  jq -r '"return { plugin = \(.nvim_plugin // "" | tojson), scheme = \(.nvim_scheme | tojson), background = \(.variant | tojson) }"' \
+    "$THEMES_DIR/$1/theme.json" > "$THEME_STATE/nvim.lua"
+}
+
 # Say which theme is now active, for the keybind and the picker.
 theme_notify() {
   [[ -n ${WAYLAND_DISPLAY:-} ]] && has_cmd notify-send || return 0
@@ -146,6 +153,7 @@ theme_set() {
   wal -q -n -e --theme "$THEMES_DIR/$id/colors.json" ||
     die "wal failed to apply $id"
   theme_links
+  theme_nvim "$id"
   printf '%s\n' "$id" > "$THEME_STATE/name"
   theme_fingerprint "$id" > "$THEME_STATE/fingerprint"
   theme_reload "$variant"

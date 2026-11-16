@@ -1,0 +1,3 @@
+-- Autocmds are loaded on the VeryLazy event.
+-- Defaults: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/autocmds.lua
+-- Add your own below.

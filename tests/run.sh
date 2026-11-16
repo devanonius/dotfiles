@@ -73,10 +73,16 @@ else
 fi
 LUAC=$(command -v luac || command -v texluac || true)
 if [[ -n $LUAC ]]; then
-  lua_syntax() { local f; for f in stow/hypr/.config/hypr/*.lua; do "$LUAC" -p "$f" || return 1; done; }
-  check "Hyprland Lua syntax" lua_syntax
+  lua_syntax() { local f; for f in stow/hypr/.config/hypr/*.lua $(find stow/nvim -name '*.lua'); do "$LUAC" -p "$f" || return 1; done; }
+  check "Hyprland and Neovim Lua syntax" lua_syntax
 else
-  skip "Hyprland Lua syntax" "no luac (pacman -S lua)"
+  skip "Hyprland and Neovim Lua syntax" "no luac (pacman -S lua)"
+fi
+if python3 -c 'import tomllib' 2>/dev/null; then
+  toml_valid() { python3 -c 'import sys, tomllib; [tomllib.load(open(f, "rb")) for f in sys.argv[1:]]' $(find stow -name '*.toml'); }
+  check "TOML configs parse" toml_valid
+else
+  skip "TOML configs parse" "python < 3.11"
 fi
 # Hyprland's Lua config rejects hyprlang leftovers: dotted keys like
 # ["col.active_border"] and gradient strings like "rgb(..) rgb(..) 45deg".
