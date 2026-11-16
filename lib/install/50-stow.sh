@@ -110,6 +110,26 @@ link_cli() {
   done
 }
 
+# Wayle's config.toml imports layout.toml; point it at the layout for this
+# kind of machine (desktops get no battery module: Wayle cannot hide it and
+# would show "0"). Wayle refuses the whole config if the import is missing,
+# so this always runs after stow.
+link_wayle_layout() {
+  local dir="$HOME/.config/wayle" kind=desktop src target
+  (( ${IS_LAPTOP:-0} )) && kind=laptop
+  src="$DOTFILES_DIR/$STOW_DIR_REL/wayle/.config/wayle/layout-$kind.toml"
+  target="$dir/layout.toml"
+  [[ -f $src ]] || return 0
+  [[ -L $target && $(readlink -f "$target") == "$(readlink -f "$src")" ]] && return 0
+  if [[ -e $target && ! -L $target ]]; then
+    warn "$(pretty "$target") is a regular file; leaving it (remove it to use the $kind layout)"
+    return 0
+  fi
+  changed "Wayle layout: $kind"
+  run mkdir -p "$dir"
+  run ln -sfn "$src" "$target"
+}
+
 stage_main() {
   prune_stale_links
 
@@ -141,4 +161,5 @@ stage_main() {
   fi
 
   link_cli
+  link_wayle_layout
 }

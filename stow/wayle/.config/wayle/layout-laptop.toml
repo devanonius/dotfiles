@@ -1,0 +1,23 @@
+# Bar layout for laptops. Imported by config.toml through layout.toml,
+# which the installer links to the file for this machine.
+
+[[bar.layout]]
+monitor = "*"
+left = [
+  { name = "workspaces", modules = ["hyprland-workspaces"] },
+  { name = "stats", modules = [
+    "cpu", "separator", "ram",
+  ] },
+]
+center = [
+  { name = "media", modules = ["media"] },
+  { name = "clock", modules = ["clock"] },
+  { name = "weather", modules = ["weather"] },
+]
+right = [
+  { name = "controls", modules = [
+    "systray", "idle-inhibit", "hyprsunset", "microphone", "volume",
+    "bluetooth", "network", "notifications", "dashboard",
+  ] },
+  { name = "battery", modules = ["battery"] },
+]

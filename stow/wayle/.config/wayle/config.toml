@@ -6,6 +6,11 @@
 # Look: a transparent bar with floating "pills": each group below is one
 # rounded island on the surface color. Labels use the theme's text color;
 # only the active workspace uses the accent.
+#
+# The module layout is in layout.toml, a link the installer points at
+# layout-laptop.toml or layout-desktop.toml (no battery) for this machine.
+
+imports = ["layout.toml"]
 
 [styling]
 # Colors come from the active dotfiles theme: `dot theme set` writes
@@ -36,30 +41,12 @@ button-group-border-location = "none"
 
 dropdown-shadow = true
 
-[[bar.layout]]
-monitor = "*"
-left = [
-  { name = "workspaces", modules = ["hyprland-workspaces"] },
-  { name = "stats", modules = [
-    "cpu", "separator", "ram",
-  ] },
-]
-center = [
-  { name = "media", modules = ["media"] },
-  { name = "clock", modules = ["clock"] },
-  { name = "weather", modules = ["weather"] },
-]
-right = [
-  { name = "controls", modules = [
-    "systray", "idle-inhibit", "hyprsunset", "microphone", "volume",
-    "bluetooth", "network", "notifications", "dashboard",
-  ] },
-  { name = "battery", modules = ["battery"] },
-]
-
 [modules.hyprland-workspaces]
 min-workspace-count = 9         # 1-9 always shown
 display-mode = "label"
+# Placeholders for empty workspaces only appear on a monitor-specific bar
+# when a Hyprland rule binds the workspace to that monitor; show all.
+monitor-specific = false
 active-indicator = "background"
 active-color = "accent"
 occupied-color = "fg-default"
@@ -85,11 +72,11 @@ label-color = "fg-default"
 button-bg-color = "transparent"
 
 [modules.media]
+# Icon only: with no player Wayle's label reads "--". Click for the player.
 icon-type = "default"
-format = "{{ status_icon }}"    # just play/pause; click for the player
-icon-show = false
-label-color = "fg-default"
-label-max-length = 0
+label-show = false
+icon-color = "fg-default"
+icon-bg-color = "transparent"
 button-bg-color = "transparent"
 
 [modules.clock]
