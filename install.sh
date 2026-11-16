@@ -107,7 +107,9 @@ cleanup() {
   return 0
 }
 trap cleanup EXIT
-trap 'printf "%s==> ERROR:%s stage %s failed at line %s (log: %s)\n" "$C_RED" "$C_RESET" "${CURRENT_STAGE:-?}" "$LINENO" "$LOG" >&2' ERR
+# Name the command that failed: inside sourced functions $LINENO counts
+# from an offset and points at the wrong line.
+trap 'printf "%s==> ERROR:%s stage %s failed (exit %s) running: %s\n    log: %s\n" "$C_RED" "$C_RESET" "${CURRENT_STAGE:-?}" "$?" "$BASH_COMMAND" "$LOG" >&2' ERR
 
 log "dotfiles: $DOTFILES_DIR$( (( DRY_RUN )) && echo '  [dry run]')"
 

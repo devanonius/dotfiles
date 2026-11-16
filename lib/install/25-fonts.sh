@@ -70,5 +70,6 @@ stage_main() {
   changed "install ${#missing[@]} font(s): ${missing[*]}"
   local args=(-Syu --needed)
   (( ASSUME_YES )) && args+=(--noconfirm)
-  run sudo pacman "${args[@]}" "${missing[@]}"
+  run sudo pacman "${args[@]}" "${missing[@]}" ||
+    die "pacman could not install the fonts above (exit $?). Usually a question was answered 'no' (a conflict or a provider choice) or a package name does not exist; see pacman's message above, then re-run."
 }

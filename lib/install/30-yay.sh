@@ -42,5 +42,6 @@ stage_main() {
   changed "install ${#missing[@]} AUR package(s): ${missing[*]}"
   local args=(-S --needed)
   (( ASSUME_YES )) && args+=(--noconfirm)
-  run yay "${args[@]}" "${missing[@]}"
+  run yay "${args[@]}" "${missing[@]}" ||
+    die "yay could not install the AUR packages above (exit $?); see its message above, then re-run."
 }

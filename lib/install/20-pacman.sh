@@ -55,5 +55,6 @@ stage_main() {
   (( ASSUME_YES )) && args+=(--noconfirm)
   # -Syu, not -S: installing without a full upgrade is a partial upgrade,
   # which Arch does not support.
-  run sudo pacman "${args[@]}" "${missing[@]}"
+  run sudo pacman "${args[@]}" "${missing[@]}" ||
+    die "pacman could not install the packages above (exit $?). Usually a question was answered 'no' (a conflict or a provider choice) or a package name does not exist; see pacman's message above, then re-run."
 }
