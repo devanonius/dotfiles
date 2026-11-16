@@ -21,9 +21,11 @@ Usage: dot <command> [args]
   theme next | prev   switch to the next / previous theme
   packages list [-c FILE]   packages that apply to this machine and config
   packages check [-c FILE]  verify every package name exists (repos, AUR, flatpak)
+  doctor              check links, theme, app configs, services and drivers
   help                show this help
 
-Coming in later phases: doctor, edit, browser.
+Also: dot-monitors [--force] writes ~/.config/hypr/local/monitors.lua.
+Coming in later phases: edit, browser.
 EOF
 }
 
@@ -149,7 +151,8 @@ main() {
     packages|pkg)   cmd_packages "$@" ;;
     help|-h|--help) usage ;;
     theme)          cmd_theme "$@" ;;
-    doctor|edit|browser)
+    doctor)         source "$DOTFILES_DIR/lib/doctor.sh"; doctor_main ;;
+    edit|browser)
       die "'dot $cmd' is not implemented yet (see docs/SPEC.md, Implementation phases)" ;;
     *) usage >&2; die "unknown command: $cmd" ;;
   esac

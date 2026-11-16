@@ -10,10 +10,10 @@ The full design is in [docs/SPEC.md](docs/SPEC.md). This README covers day-to-da
 | --- | --- | --- |
 | 1 | Repo skeleton, installer core (preflight, config, detect, pacman, yay, flatpak, stow), `dot` CLI, tests | done |
 | 2 | Hyprland (Lua), hypridle, hyprlock, Ghostty, zsh + Oh My Zsh + Powerlevel10k, Wayle, Walker, git; shell and services stages | done, untested on hardware |
-| 3 | Theme engine (pywal16): `dot theme`, templates for Hyprland, hyprlock, Ghostty, Wayle, Walker, GTK, btop, prompt | done, untested on hardware |
-| 4 | Theme catalog, wallpapers, picker | next |
-| 5 | LazyVim and CLI tooling | |
-| 6 | Hardware profiles, migrations, `dot doctor` | |
+| 3 | Theme engine (pywal16): `dot theme`, templates for Hyprland, hyprlock, Ghostty, Wayle, Walker, GTK, btop, prompt | done, tested on hardware |
+| 4 | Theme catalog, wallpapers, picker | picker done; catalog next |
+| 5 | LazyVim (theme-following, live reload) and CLI tooling (bat, fzf, lazygit, lsd) | done, untested on hardware |
+| 6 | Hardware profiles (laptop/desktop, NVIDIA, monitors), migrations, `dot doctor` | done, untested on hardware |
 | 7 | Browser (with Vimium) and Qt theming | |
 
 ## Install
@@ -61,6 +61,9 @@ After the first run, `dot` is linked into `~/.local/bin`.
 | `dot fonts` | pick Nerd Fonts again and install them |
 | `dot packages list [-c FILE]` | packages that apply to this machine and config |
 | `dot packages check [-c FILE]` | verify every package name exists (run after editing `packages/` or a config) |
+| `dot doctor` | check links, rendered theme, Ghostty/Hyprland/Neovim configs, services, NVIDIA setup; read-only |
+| `dot theme …` | see [Themes](#themes) |
+| `dot-monitors [--force]` | write `~/.config/hypr/local/monitors.lua` from the connected monitors (runs once by itself on first login with 2+ monitors) |
 
 ## Desktop
 
@@ -93,6 +96,12 @@ Each folder in `stow/` mirrors your home folder and is linked file by file (`sto
 
 Machine-specific settings go in untracked files (`~/.config/hypr/local/`, `~/.config/zsh/local.zsh`, `~/.config/git/local`), so one repo serves every machine.
 
+**Laptop or desktop.** Some files exist in both variants in the repo, and the installer links the one for this machine (a battery means laptop): `~/.config/wayle/layout.toml` (desktops get no battery module) and `~/.config/hypr/idle.conf` (laptop: dim 2.5 min, lock 5, screen off 5.5, suspend 15; desktop: lock 10, screens off 15, no suspend).
+
+**Hardware files.** Stage `65-hardware` writes `~/.config/hypr/local/env.lua` once on NVIDIA machines (VA-API and GLX variables; hybrid laptops get a commented GPU-selection file instead). With two or more monitors, `dot-monitors` writes `local/monitors.lua` on first login: each output at its preferred mode left to right, workspaces 1–5 on the leftmost and 6–10 on the next. Both files are yours afterwards; the installer never overwrites them.
+
+**Migrations.** One-time fixes for machines installed from an older version live in `migrations/` and run once per machine (stage `45-migrate`); see `migrations/README.md`.
+
 ## Config file
 
 `install.sh -c my.json` (or `dot install -c my.json`) chooses what gets installed. Three files are merged, later ones winning; objects merge, lists replace:
@@ -117,7 +126,8 @@ Machine-specific settings go in untracked files (`~/.config/hypr/local/`, `~/.co
 ```
 
 - **modules**: each key is a file `packages/<key>.txt`, `true` or `false`. `base` and `aur` always install. Add a module by adding a `packages/<name>.txt`.
-- **hardware** (default `true`): installs the `packages/hardware/` lists that match the detected CPU (Intel/AMD microcode), GPUs (Intel, AMD, NVIDIA) and battery.
+- **hardware** (default `true`): installs the `packages/hardware/` lists that match the detected CPU (Intel/AMD microcode), GPUs (Intel, AMD, NVIDIA) and battery, and writes the hardware files (see [How configs are deployed](#how-configs-are-deployed)).
+- **nvidia_driver** (default `"auto"`): `auto` picks by GPU generation: the open kernel modules from the repos for Turing (RTX 20, GTX 16) and newer (`nvidia-open` for the stock kernel, `nvidia-open-lts`, or `nvidia-open-dkms` with headers for other kernels), `nvidia-580xx-dkms` from the AUR for Maxwell, Pascal and Volta, nothing for Kepler and older. A driver that is already installed is always kept. `"open"` or `"580xx"` forces a family; `"none"` installs no driver.
 - **fonts**: Nerd Fonts from `packages/fonts/nerd-fonts.txt`. `"ask"` (default) shows a pick-list once and remembers the choice; `dot fonts` asks again. Or `"all"`, `"none"`, or a list. JetBrains Mono Nerd Font is always installed (the terminal uses it).
 - **extra_packages**: packages on top of the modules. Flatpak is only installed when the flatpak list is non-empty. `scope: "user"` needs no root; `"system"` installs for everyone.
 - Mistakes fail fast with every problem listed: unknown keys, wrong types, unknown modules or fonts, invalid package names. `config/config.schema.json` gives editors completion and validation.
@@ -134,7 +144,7 @@ dot theme set gruvbox-dark
 dot theme next            # also SUPER+SHIFT+T
 ```
 
-A theme is `themes/<id>/colors.json` (a pywal colorscheme) plus `theme.json` (name, dark/light, Neovim scheme, upstream source); see `themes/README.md`. `dot theme set` runs pywal16, which renders `~/.config/wal/templates/*` (tracked in `stow/wal/`) into `~/.cache/wal/` and recolors open terminals. Then it reloads Hyprland and Ghostty and sets GTK to dark or light. Wayle follows pywal by itself, and Walker reloads its CSS by itself. Nothing tracked changes when you switch, so `git status` stays clean.
+A theme is `themes/<id>/colors.json` (a pywal colorscheme) plus `theme.json` (name, dark/light, Neovim scheme, upstream source); see `themes/README.md`. `dot theme set` runs pywal16, which renders `~/.config/wal/templates/*` (tracked in `stow/wal/`) into `~/.cache/wal/` and recolors open terminals. Then it reloads Hyprland and Ghostty, sets GTK to dark or light, writes Wayle's palette with `wayle config set` (kept in `~/.config/wayle/runtime.toml`), switches every open Neovim through its server socket, and shows a notification. Walker reloads its CSS by itself. `SUPER+CTRL+SHIFT+SPACE` opens a picker. Terminal tools (bat, fzf, lazygit, lsd, the prompt) use the 16 ANSI colors, so they follow Ghostty's palette with no per-theme files. Neovim's lazy-lock.json is written into the repo (`stow/nvim/.config/nvim/`): commit it to pin plugin versions on every machine. Nothing else tracked changes when you switch.
 
 To theme another app, add a template to `stow/wal/.config/wal/templates/` and point the app at `~/.cache/wal/<file>` (skill: `dotfiles-add-themed-app`). Your own scripts in `~/.config/dotfiles/hooks/theme-set.d/` run after every switch with the theme id as `$1`.
 
