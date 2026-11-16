@@ -14,10 +14,14 @@ if ok and type(theme) == "table" then
   for key, value in pairs(theme) do colors[key] = value end
 end
 
+-- Lua configs take a gradient as a table, not hyprlang's
+-- "color color 45deg" string (wiki: Configuring/Basics/Variables, "gradient").
 hl.config({
   general = {
-    ["col.active_border"]   = colors.active .. " " .. colors.active2 .. " 45deg",
-    ["col.inactive_border"] = colors.inactive,
+    col = {
+      active_border   = { colors = { colors.active, colors.active2 }, angle = 45 },
+      inactive_border = colors.inactive,
+    },
   },
   decoration = {
     shadow = { color = colors.shadow },

@@ -78,6 +78,13 @@ if [[ -n $LUAC ]]; then
 else
   skip "Hyprland Lua syntax" "no luac (pacman -S lua)"
 fi
+# Hyprland's Lua config rejects hyprlang leftovers: dotted keys like
+# ["col.active_border"] and gradient strings like "rgb(..) rgb(..) 45deg".
+no_hyprlang_colors() {
+  ! grep -nE '\["col\.|[0-9]+deg"' stow/hypr/.config/hypr/*.lua stow/wal/.config/wal/templates/*.lua | grep -v '^\S*:[0-9]*:\s*--'
+}
+check "no hyprlang-style colors in the Hyprland Lua config" no_hyprlang_colors
+
 themes_valid() {
   local d id
   for d in themes/*/; do
