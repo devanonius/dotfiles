@@ -29,11 +29,16 @@ aur_exists() { yay -Si --aur -- "$1" >/dev/null 2>&1; }
 in_repos() { pacman -Sddp --print-format '%n' -- "$1" >/dev/null 2>&1; }
 
 # Print one field ("Depends On", "Provides") of AUR packages, one name per
-# line, version constraints removed.
+# line, version constraints removed. yay wraps long values onto indented
+# continuation lines, so those are read as part of the field too.
 aur_field() {
   local field=$1; shift
   yay -Si --aur -- "$@" 2>/dev/null |
-    awk -v f="$field" -F' *: ' '$1 == f { print $2 }' |
+    awk -v f="$field" '
+      /^[^ \t][^:]*:/ { key = $0; sub(/ *:.*/, "", key); on = (key == f)
+                         if (on) { v = $0; sub(/^[^:]*: */, "", v); print v }; next }
+      on && /^[ \t]/  { print; next }
+      { on = 0 }' |
     tr -s ' \t' '\n' | sed -E 's/[<>=].*$//' | grep -vx -e 'None' -e '' || true
 }
 

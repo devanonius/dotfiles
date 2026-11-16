@@ -6,5 +6,19 @@
 oh-my-zsh-git        # Oh My Zsh, installed to /usr/share/oh-my-zsh
 wayle-bin            # status bar, notifications, OSD, wallpaper
 walker-bin           # launcher
-elephant-all-bin     # Walker's backend with all official providers
+# Walker's backend and the providers this setup uses. Not elephant-all-bin:
+# it pulls in every provider, including elephant-protonpass-bin, whose
+# dependency proton-pass-cli has no prebuilt package and compiles for a
+# long time. Add more providers from: yay -Ss elephant | grep -- -bin
+elephant-bin                      # backend
+elephant-desktopapplications-bin  # launch apps
+elephant-providerlist-bin         # list of providers in Walker
+elephant-runner-bin               # run commands
+elephant-calc-bin                 # calculator
+elephant-clipboard-bin            # clipboard history
+elephant-menus-bin                # custom menus (theme picker, power menu)
+elephant-symbols-bin              # symbols and emoji
+elephant-unicode-bin              # unicode characters
+elephant-files-bin                # file search
+elephant-websearch-bin            # web search
 python-pywal16       # theme engine (wal); maintained fork of pywal
