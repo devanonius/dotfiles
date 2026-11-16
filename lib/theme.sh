@@ -103,7 +103,19 @@ theme_reload() {
   [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] && has_cmd hyprctl && hook hyprctl reload
   hook pkill -USR2 -x ghostty
   theme_wayle
+  theme_nvim_reload
   # Walker reloads style.css itself.
+}
+
+# Every running Neovim listens on $XDG_RUNTIME_DIR/nvim.<pid>.0; ask each to
+# re-read the theme (lua/dotfiles/theme.lua in the nvim config).
+theme_nvim_reload() {
+  local sock
+  has_cmd nvim || return 0
+  for sock in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/nvim.*; do
+    [[ -S $sock ]] || continue
+    hook nvim --server "$sock" --remote-expr 'luaeval("require(\"dotfiles.theme\").reload()")'
+  done
 }
 
 # Wayle: write the palette through its CLI, which applies it live and keeps

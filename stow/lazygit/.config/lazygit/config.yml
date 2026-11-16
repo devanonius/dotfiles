@@ -1,0 +1,23 @@
+# lazygit (`lg`). Its colors are ANSI color names, so it follows the active
+# theme through Ghostty's palette; only the look is set here.
+gui:
+  nerdFontsVersion: "3"
+  border: rounded
+  showBottomLine: false
+  theme:
+    activeBorderColor: [blue, bold]
+    inactiveBorderColor: [default]
+    searchingActiveBorderColor: [cyan, bold]
+    optionsTextColor: [blue]
+    selectedLineBgColor: [reverse]
+    cherryPickedCommitFgColor: [blue]
+    cherryPickedCommitBgColor: [cyan]
+    markedBaseCommitFgColor: [blue]
+    markedBaseCommitBgColor: [yellow]
+    unstagedChangesColor: [red]
+    defaultFgColor: [default]
+git:
+  paging:
+    colorArg: always
+os:
+  editPreset: nvim

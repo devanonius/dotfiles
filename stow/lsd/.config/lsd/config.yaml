@@ -1,0 +1,14 @@
+# lsd (ls replacement; `ls`, `ll`, `la`, `lt` aliases). Colors come from
+# colors.yaml, which only uses the terminal's 16 ANSI colors so lsd follows
+# the active theme. File-name colors come from LS_COLORS.
+color:
+  when: auto
+  theme: custom
+icons:
+  when: auto
+  theme: fancy
+  separator: " "
+date: relative
+size: short
+sorting:
+  dir-grouping: first

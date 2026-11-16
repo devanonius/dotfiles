@@ -1,0 +1,6 @@
+# bat (also `cat`, see ~/.config/zsh/aliases.zsh). The "ansi" theme uses the
+# terminal's 16 colors, so syntax highlighting follows the active dotfiles
+# theme through Ghostty's palette, with no per-theme file.
+--theme=ansi
+--style=numbers,changes,header
+--italic-text=always
