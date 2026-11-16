@@ -18,10 +18,23 @@ The full design is in [docs/SPEC.md](docs/SPEC.md). This README covers day-to-da
 
 ## Install
 
-On an Arch system with network and a sudo user:
+On an Arch system with network and a sudo user, one line:
 
 ```sh
-git clone <your-repo-url> ~/dotfiles
+curl -fsSL https://raw.githubusercontent.com/devanonius/dotfiles/main/bootstrap.sh | bash
+```
+
+It installs git, clones this repo to `~/dotfiles` (or updates an existing clone), and runs the installer. Options after `bash -s --` go to the installer; a config can be a file or a URL:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/devanonius/dotfiles/main/bootstrap.sh | bash -s -- --dry-run
+curl -fsSL https://raw.githubusercontent.com/devanonius/dotfiles/main/bootstrap.sh | bash -s -- -c https://example.com/my.json
+```
+
+Or by hand:
+
+```sh
+git clone https://github.com/devanonius/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh --dry-run   # see what would change
 ./install.sh             # apply
