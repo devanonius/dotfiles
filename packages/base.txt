@@ -12,9 +12,9 @@ wget
 unzip
 pciutils
 
-# shell (Oh My Zsh comes from the AUR list)
+# shell (Oh My Zsh comes from the AUR list; Powerlevel10k is cloned by
+# stage 40-shell because it is not in the Arch repos)
 zsh
-zsh-theme-powerlevel10k
 zsh-autosuggestions
 zsh-syntax-highlighting
 zsh-completions

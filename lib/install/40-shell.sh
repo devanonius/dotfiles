@@ -1,7 +1,13 @@
 # shellcheck shell=bash
-# Stage 40: make zsh the login shell and set up the git identity file.
-# Oh My Zsh, Powerlevel10k and the zsh plugins are packages (stages 20/30);
-# their config files are linked by stage 50.
+# Stage 40: make zsh the login shell, install Powerlevel10k and set up the
+# git identity file. Oh My Zsh and the zsh plugins are packages (stages
+# 20/30); their config files are linked by stage 50.
+
+# Powerlevel10k is not in the Arch repos. Its README's Oh My Zsh method:
+# clone it into $ZSH_CUSTOM/themes and set ZSH_THEME (done in dot-zshrc).
+# P10K_REPO exists so tests can use a local clone.
+: "${P10K_REPO:=https://github.com/romkatv/powerlevel10k.git}"
+P10K_DIR="$HOME/.config/zsh/omz-custom/themes/powerlevel10k"
 
 set_login_shell() {
   local zsh current
@@ -39,7 +45,30 @@ git_identity() {
   printf '[user]\n    name = %s\n    email = %s\n' "$name" "$email" > "$file"
 }
 
+install_p10k() {
+  if [[ ! -d $P10K_DIR/.git ]]; then
+    changed "clone Powerlevel10k into $(pretty "$P10K_DIR")"
+    run mkdir -p "$(dirname "$P10K_DIR")"
+    run git clone --depth=1 --quiet "$P10K_REPO" "$P10K_DIR"
+    return 0
+  fi
+  (( DRY_RUN )) && { info "Powerlevel10k: installed (a real run updates it)"; return 0; }
+  local before after
+  before=$(git -C "$P10K_DIR" rev-parse HEAD)
+  if ! git -C "$P10K_DIR" pull --ff-only --quiet 2>/dev/null; then
+    warn "Powerlevel10k: could not update (offline?); keeping the installed version"
+    return 0
+  fi
+  after=$(git -C "$P10K_DIR" rev-parse HEAD)
+  if [[ $before != "$after" ]]; then
+    changed "update Powerlevel10k"
+  else
+    info "Powerlevel10k: up to date"
+  fi
+}
+
 stage_main() {
   set_login_shell
+  install_p10k
   git_identity
 }

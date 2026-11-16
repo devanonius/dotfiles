@@ -1,6 +1,8 @@
-# zsh: Oh My Zsh + Powerlevel10k, both from packages (oh-my-zsh-git from
-# the AUR, zsh-theme-powerlevel10k from the repos), so updates come with
-# the system. Personal additions go in ~/.config/zsh/local.zsh (untracked).
+# zsh: Oh My Zsh (oh-my-zsh-git from the AUR, in /usr/share/oh-my-zsh) with
+# Powerlevel10k as its theme. Powerlevel10k is not in the Arch repos; the
+# installer clones it into $ZSH_CUSTOM/themes as its README describes for
+# Oh My Zsh, and updates it on every run. Personal additions go in
+# ~/.config/zsh/local.zsh (untracked).
 
 # Powerlevel10k instant prompt: keep at the top.
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
@@ -11,18 +13,20 @@ export ZSH=/usr/share/oh-my-zsh
 export ZSH_CUSTOM=$HOME/.config/zsh/omz-custom
 export ZSH_CACHE_DIR=${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh
 [[ -d $ZSH_CACHE_DIR ]] || mkdir -p "$ZSH_CACHE_DIR"
-ZSH_THEME=""                 # the prompt is Powerlevel10k, loaded below
+if [[ -r $ZSH_CUSTOM/themes/powerlevel10k/powerlevel10k.zsh-theme ]]; then
+  ZSH_THEME="powerlevel10k/powerlevel10k"
+else
+  ZSH_THEME="robbyrussell"   # until the installer has cloned Powerlevel10k
+fi
 plugins=(git sudo fzf zoxide)
 [[ -r $ZSH/oh-my-zsh.sh ]] && source "$ZSH/oh-my-zsh.sh"
 
-P10K=/usr/share/zsh-theme-powerlevel10k
-if [[ -r $P10K/powerlevel10k.zsh-theme ]]; then
-  source "$P10K/powerlevel10k.zsh-theme"
-  # Your own prompt (from `p10k configure`) wins over the shipped lean style.
+# Your own prompt (from `p10k configure`) wins over the shipped lean style.
+if [[ $ZSH_THEME == powerlevel10k/* ]]; then
   if [[ -r ~/.p10k.zsh ]]; then
     source ~/.p10k.zsh
   else
-    source "$P10K/config/p10k-lean.zsh"
+    source "$ZSH_CUSTOM/themes/powerlevel10k/config/p10k-lean.zsh"
     source ~/.config/zsh/p10k-colors.zsh   # theme-following colors for the shipped style
   fi
 fi
