@@ -1,4 +1,6 @@
 -- Colorscheme follows the active dotfiles theme (see lua/dotfiles/theme.lua).
+-- Themes without a plugin (habamax is built in, Esmerald lives in colors/)
+-- need no spec.
 -- Every theme's plugin is declared here (lazy, so only the active one
 -- loads); new themes in themes/ are picked up without editing this file.
 local dotfiles_theme = require("dotfiles.theme")
@@ -9,7 +11,12 @@ local specs, seen = {}, {}
 local function add(plugin)
   if plugin and plugin ~= "" and not seen[plugin] then
     seen[plugin] = true
-    table.insert(specs, { plugin, lazy = true })
+    local owner, repo = plugin:match("^([^/]+)/(.+)$")
+    -- Repos named "nvim"/"neovim" (catppuccin/nvim, rose-pine/neovim) are
+    -- known by their owner, as LazyVim does; otherwise two specs with the
+    -- same plugin would clash.
+    local name = (repo == "nvim" or repo == "neovim") and owner or nil
+    table.insert(specs, { plugin, name = name, lazy = true })
   end
 end
 
