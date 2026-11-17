@@ -49,7 +49,9 @@ playerctl
 keepassxc
 libsecret
 
-# GTK / Qt theming
+# GTK / Qt theming (Papirus: icons in a dark and a light version,
+# switched with the theme's variant)
+papirus-icon-theme
 adw-gtk-theme
 nwg-look
 qt6ct

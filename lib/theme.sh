@@ -97,12 +97,14 @@ hook() { timeout 2 "$@" >/dev/null 2>&1 || true; }
 # Tell every running app to reload. They are independent, so they all start
 # at once (each still capped by hook's timeout); theme_set waits for them.
 theme_reload() {
-  local variant=$1 scheme=prefer-dark gtk=adw-gtk3-dark
+  local variant=$1 icons=${2:-} scheme=prefer-dark gtk=adw-gtk3-dark
   [[ $variant == light ]] && { scheme=prefer-light; gtk=adw-gtk3; }
   if has_cmd gsettings; then
     hook gsettings set org.gnome.desktop.interface color-scheme "$scheme" &
     hook gsettings set org.gnome.desktop.interface gtk-theme "$gtk" &
+    [[ -n $icons ]] && { hook gsettings set org.gnome.desktop.interface icon-theme "$icons" & }
   fi
+  theme_qt_icons "$icons"
   [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] && has_cmd hyprctl && { hook hyprctl reload & }
   hook pkill -USR2 -x ghostty &
   theme_wayle &
@@ -125,6 +127,29 @@ theme_nvim_reload() {
     hook nvim --server "$sock" --remote-expr 'luaeval("require(\"dotfiles.theme\").reload()")' &
   done
   wait
+}
+
+# Icon theme for a theme: theme.json "icon_theme" if set, else Papirus in
+# the theme's variant (when Papirus is installed).
+theme_icons() {
+  local id=$1 icons
+  icons=$(theme_meta "$id" icon_theme)
+  if [[ -z $icons && -d /usr/share/icons/Papirus ]]; then
+    [[ $(theme_meta "$id" variant) == light ]] && icons=Papirus-Light || icons=Papirus-Dark
+  fi
+  printf '%s' "$icons"
+}
+
+# Qt apps read their icon theme from qt6ct.conf. Only a Papirus value set by
+# us is switched; an icon theme picked in qt6ct is left alone.
+theme_qt_icons() {
+  local icons=$1 conf="${XDG_CONFIG_HOME:-$HOME/.config}/qt6ct/qt6ct.conf"
+  [[ -n $icons && -f $conf ]] || return 0
+  if grep -q '^icon_theme=Papirus' "$conf"; then
+    sed -i "s/^icon_theme=Papirus.*/icon_theme=$icons/" "$conf"
+  elif ! grep -q '^icon_theme=' "$conf"; then
+    sed -i "/^\[Appearance\]/a icon_theme=$icons" "$conf"
+  fi
 }
 
 # Wayle: write the palette through its CLI, which applies it live and keeps
@@ -227,7 +252,7 @@ theme_set() {
   theme_nvim "$id"
   printf '%s\n' "$id" > "$THEME_STATE/name"
   theme_fingerprint "$id" > "$THEME_STATE/fingerprint"
-  theme_reload "$variant"
+  theme_reload "$variant" "$(theme_icons "$id")"
   background_apply "$id" &
   theme_user_hooks "$id"
   wait   # for the reloads started above
