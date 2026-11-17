@@ -19,8 +19,17 @@ done
 choice=$(printf '%s\n' "${menu[@]}" | walker --dmenu --placeholder "Theme" 2>/dev/null || true)
 [[ -n $choice ]] || exit 0
 
+# Compare without the marker and padding: Walker may return the line trimmed.
+plain() { local s=${1#●}; s="${s#"${s%%[![:space:]]*}"}"; printf '%s' "${s%"${s##*[![:space:]]}"}"; }
+want=$(plain "$choice")
 for i in "${!menu[@]}"; do
-  if [[ ${menu[$i]} == "$choice" ]]; then
-    exec dot theme set "${ids[$i]}"
+  if [[ $(plain "${menu[$i]}") == "$want" ]]; then
+    log="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/theme-picker.log"
+    if ! dot theme set "${ids[$i]}" >"$log" 2>&1; then
+      notify-send -a dotfiles -u critical "Theme ${ids[$i]} failed" "$(tail -n 3 "$log")" || true
+      exit 1
+    fi
+    exit 0
   fi
 done
+notify-send -a dotfiles "Theme picker" "No theme matches: $choice" || true
