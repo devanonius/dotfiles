@@ -9,10 +9,12 @@
 #   3. sets GTK's dark/light preference from the theme's variant
 #   4. tells running apps to reload (each hook: 2 s timeout, never fatal)
 #   5. runs ~/.config/dotfiles/hooks/theme-set.d/* with the theme id as $1
-#   6. shows a notification with the new theme's name
+#   6. shows the theme's wallpaper (backgrounds/<id>/) or its background color
+#   7. shows a notification with the new theme's name
 
 THEMES_DIR="$DOTFILES_DIR/themes"
 THEME_STATE="$DOTFILES_STATE/theme"
+BACKGROUNDS_DIR="$DOTFILES_DIR/backgrounds"
 WAL_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/wal"
 DEFAULT_THEME=tokyonight-night
 
@@ -135,6 +137,55 @@ theme_nvim() {
     "$THEMES_DIR/$1/theme.json" > "$THEME_STATE/nvim.lua"
 }
 
+# --- Wallpapers --------------------------------------------------------------
+# backgrounds/<theme id>/ holds that theme's wallpapers (added by hand; any
+# jpg/png/webp/gif). Wayle draws them (through awww). A theme without any
+# gets a plain screen in its background color.
+
+background_files() {
+  local dir="$BACKGROUNDS_DIR/$1"
+  [[ -d $dir ]] || return 0
+  find "$dir" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' -o -iname '*.gif' \) | sort
+}
+
+# background_apply <id> [file]: show file (default: the remembered one, or
+# the theme's first), or the theme's color when it has no wallpapers.
+background_apply() {
+  local id=$1 file=${2:-} files=()
+  mapfile -t files < <(background_files "$id")
+  if (( ${#files[@]} == 0 )); then
+    rm -f "$THEME_STATE/background"
+    local bg
+    bg=$(jq -r '.special.background' "$THEMES_DIR/$id/colors.json")
+    has_cmd wayle && hook wayle wallpaper stop
+    has_cmd awww && hook awww clear "${bg#\#}"
+    return 0
+  fi
+  if [[ -z $file ]]; then
+    file=$(cat "$THEME_STATE/background" 2>/dev/null || true)
+    [[ -n $file && -f $file && $file == "$BACKGROUNDS_DIR/$id/"* ]] || file=${files[0]}
+  fi
+  printf '%s\n' "$file" > "$THEME_STATE/background"
+  has_cmd wayle && hook wayle wallpaper set "$file"
+  return 0
+}
+
+# background_step +1|-1: the next/previous wallpaper of the active theme.
+background_step() {
+  local id files=() current i n
+  id=$(theme_current)
+  [[ -n $id ]] || die "no active theme (dot theme set <id> first)"
+  mapfile -t files < <(background_files "$id")
+  n=${#files[@]}
+  (( n )) || { log "$id has no wallpapers (add images to backgrounds/$id/)"; return 0; }
+  current=$(cat "$THEME_STATE/background" 2>/dev/null || true)
+  for i in "${!files[@]}"; do [[ ${files[$i]} == "$current" ]] && break; done
+  [[ ${files[$i]:-} == "$current" ]] || i=-1
+  i=$(( (i + $1 + n) % n ))
+  background_apply "$id" "${files[$i]}"
+  log "wallpaper: ${files[$i]#"$DOTFILES_DIR"/}"
+}
+
 # Say which theme is now active, for the keybind and the picker.
 theme_notify() {
   [[ -n ${WAYLAND_DISPLAY:-} ]] && has_cmd notify-send || return 0
@@ -169,6 +220,7 @@ theme_set() {
   printf '%s\n' "$id" > "$THEME_STATE/name"
   theme_fingerprint "$id" > "$THEME_STATE/fingerprint"
   theme_reload "$variant"
+  background_apply "$id"
   theme_user_hooks "$id"
   flock -u "$lock"
   theme_notify "$id"

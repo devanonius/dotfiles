@@ -19,6 +19,7 @@ hl.config({
   },
   misc = {
     disable_hyprland_logo = true,
+    disable_splash_rendering = true,  -- the quote under the logo
     force_default_wallpaper = 0,  -- Wayle draws the wallpaper
   },
 })

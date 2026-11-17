@@ -11,7 +11,7 @@ The full design is in [docs/SPEC.md](docs/SPEC.md). This README covers day-to-da
 | 1 | Repo skeleton, installer core (preflight, config, detect, pacman, yay, flatpak, stow), `dot` CLI, tests | done |
 | 2 | Hyprland (Lua), hypridle, hyprlock, Ghostty, zsh + Oh My Zsh + Powerlevel10k, Wayle, Walker, git; shell and services stages | done, untested on hardware |
 | 3 | Theme engine (pywal16): `dot theme`, templates for Hyprland, hyprlock, Ghostty, Wayle, Walker, GTK, btop, prompt | done, tested on hardware |
-| 4 | Theme catalog, wallpapers, picker | picker done; catalog next |
+| 4 | Theme catalog (19 themes), per-theme wallpapers, picker, Ghostty import tool | done, untested on hardware |
 | 5 | LazyVim (theme-following, live reload) and CLI tooling (bat, fzf, lazygit, lsd) | done, untested on hardware |
 | 6 | Hardware profiles (laptop/desktop, NVIDIA, monitors), migrations, `dot doctor` | done, untested on hardware |
 | 7 | Browser (with Vimium) and Qt theming | |
@@ -170,6 +170,16 @@ A theme is `themes/<id>/colors.json` (a pywal colorscheme) plus `theme.json` (na
 
 To theme another app, add a template to `stow/wal/.config/wal/templates/` and point the app at `~/.cache/wal/<file>` (skill: `dotfiles-add-themed-app`). Your own scripts in `~/.config/dotfiles/hooks/theme-set.d/` run after every switch with the theme id as `$1`.
 
+
+| Family | Themes |
+| --- | --- |
+| Tokyo Night | `tokyonight-night` (default), `tokyonight-storm`, `tokyonight-moon`, `tokyonight-day` (light) |
+| Catppuccin | `catppuccin-mocha`, `catppuccin-macchiato`, `catppuccin-frappe`, `catppuccin-latte` (light) |
+| Gruvbox | `gruvbox-dark`, `gruvbox-light` (light) |
+| Esmerald | `esmerald`, `esmerald-night`, `esmerald-light` (light) |
+| Others | `habamax`, `onedark`, `darcula`, `everforest-dark`, `kanagawa-wave`, `rose-pine` |
+
+`SUPER+CTRL+SHIFT+SPACE` opens the picker, `SUPER+SHIFT+T` goes to the next theme. Wallpapers come from `backgrounds/<theme id>/` (you add them): the first one is shown when the theme is applied, `dot background next` (`SUPER+CTRL+SPACE`) steps through the rest, and a theme without wallpapers gets a plain screen in its background color.
 ## System files (keyd)
 
 `system/<module>/` mirrors the root of the filesystem and is **copied** with sudo (not linked), because services read these files at boot. `system/keyd/etc/keyd/default.conf` becomes `/etc/keyd/default.conf`. Edit the repo copy, then run `dot install --only system`: changed files are backed up to `~/.local/state/dotfiles/backup/`, installed, and the units in `system/<module>.service` are enabled and restarted. A module's system files are installed only when the module is on (`"modules": { "keyd": true }`, the default).

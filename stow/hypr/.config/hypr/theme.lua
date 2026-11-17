@@ -6,6 +6,7 @@ local colors = {
   active2  = "rgb(bb9af7)",  -- accent_alt, for the gradient
   inactive = "rgb(3b4261)",  -- border
   shadow   = "rgba(1a1b26ee)",
+  background = "rgb(1a1b26)",  -- shows where no wallpaper is set
 }
 
 local path = (os.getenv("XDG_CACHE_HOME") or (os.getenv("HOME") .. "/.cache")) .. "/wal/colors-hyprland.lua"
@@ -25,5 +26,8 @@ hl.config({
   },
   decoration = {
     shadow = { color = colors.shadow },
+  },
+  misc = {
+    background_color = colors.background,
   },
 })

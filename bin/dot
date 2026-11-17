@@ -19,6 +19,7 @@ Usage: dot <command> [args]
   theme set <id>      switch every app to a theme
   theme current       print the active theme id
   theme next | prev   switch to the next / previous theme
+  background next | prev | list   the active theme's wallpapers (backgrounds/<id>/)
   packages list [-c FILE]   packages that apply to this machine and config
   packages check [-c FILE]  verify every package name exists (repos, AUR, flatpak)
   doctor              check links, theme, app configs, services and drivers
@@ -149,6 +150,13 @@ main() {
     restow)         exec bash "$DOTFILES_DIR/install.sh" --only stow "$@" ;;
     fonts)          rm -f "$DOTFILES_STATE/fonts.txt"; exec bash "$DOTFILES_DIR/install.sh" --only fonts "$@" ;;
     packages|pkg)   cmd_packages "$@" ;;
+    background|bg)  source "$DOTFILES_DIR/lib/theme.sh"
+                    case ${1:-next} in
+                      next) background_step 1 ;;
+                      prev) background_step -1 ;;
+                      list) background_files "$(theme_current)" ;;
+                      *) die "unknown: dot background ${1}. Use: next | prev | list" ;;
+                    esac ;;
     help|-h|--help) usage ;;
     theme)          cmd_theme "$@" ;;
     doctor)         source "$DOTFILES_DIR/lib/doctor.sh"; doctor_main ;;
