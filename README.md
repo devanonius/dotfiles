@@ -24,7 +24,7 @@ On an Arch system with network and a sudo user, one line:
 curl -fsSL https://raw.githubusercontent.com/devanonius/dotfiles/main/bootstrap.sh | bash
 ```
 
-It installs git, clones this repo to `~/dotfiles` (or updates an existing clone), and runs the installer. Options after `bash -s --` go to the installer; a config can be a file or a URL:
+It installs git, clones this repo to `~/dotfiles` (or updates an existing clone), and runs the installer. On the first run without a config it asks a few questions on the terminal (which package groups, which browser, which Nerd Fonts) and saves the answers to `~/.config/dotfiles/config.json`, so later runs and `dot update` don't ask again; delete that file to be asked again. Options after `bash -s --` go to the installer; a config can be a file or a URL:
 
 ```sh
 curl -fsSL https://raw.githubusercontent.com/devanonius/dotfiles/main/bootstrap.sh | bash -s -- --dry-run
@@ -61,6 +61,8 @@ After the first run, `dot` is linked into `~/.local/bin`.
 | `dot fonts` | pick Nerd Fonts again and install them |
 | `dot packages list [-c FILE]` | packages that apply to this machine and config |
 | `dot packages check [-c FILE]` | verify every package name exists (run after editing `packages/` or a config) |
+| `dot edit [<app>]` | open an app's config folder in the repo in your editor (no app: list them) |
+| `dot-keybinds [--print]` | the keybind cheat sheet (also `SUPER+K`) |
 | `dot doctor` | check links, rendered theme, Ghostty/Hyprland/Neovim configs, services, NVIDIA setup; read-only |
 | `dot theme …` | see [Themes](#themes) |
 | `dot-monitors [--force]` | write `~/.config/hypr/local/monitors.lua` from the connected monitors (runs once by itself on first login with 2+ monitors) |
@@ -82,6 +84,7 @@ hl.config({ input = { kb_layout = "se" } })
 | `SUPER+V` | clipboard history |
 | `SUPER+ESCAPE` | power menu |
 | `SUPER+CTRL+L` | lock |
+| `SUPER+K` | all keybinds with descriptions (read live from Hyprland) |
 | `SUPER+Q` / `F` / `T` | close / fullscreen / toggle floating |
 | `SUPER+arrows`, `SUPER+SHIFT+arrows` | focus / move window |
 | `SUPER+1..0`, `SUPER+SHIFT+1..0` | go to / move to workspace |
@@ -166,6 +169,21 @@ Machine-specific settings go in untracked files (`~/.config/hypr/local/`, `~/.co
 - **fonts**: Nerd Fonts from `packages/fonts/nerd-fonts.txt`. `"ask"` (default) shows a pick-list once and remembers the choice; `dot fonts` asks again. Or `"all"`, `"none"`, or a list. JetBrains Mono Nerd Font is always installed (the terminal uses it).
 - **extra_packages**: packages on top of the modules. Flatpak is only installed when the flatpak list is non-empty. `scope: "user"` needs no root; `"system"` installs for everyone.
 - Mistakes fail fast with every problem listed: unknown keys, wrong types, unknown modules or fonts, invalid package names. `config/config.schema.json` gives editors completion and validation.
+
+## Adding an app
+
+Say the app is `foo`:
+
+1. **Package.** Add `foo` to the module that fits (`packages/desktop.txt` for the desktop, `packages/user.txt` for personal apps), or to `packages/aur.txt`, preferring a `-bin` package so nothing compiles. Check the name with `dot packages check`.
+2. **Config.** Put its files in `stow/foo/`, mirroring your home folder: `stow/foo/.config/foo/config`. Files directly in your home folder use a `dot-` prefix (`stow/foo/dot-foorc` becomes `~/.foorc`). Run `dot restow`. From then on `dot edit foo` opens the folder, and edits are live through the links.
+   - If the app rewrites its own config file (like btop, KeePassXC, qt6ct), don't track the file; seed it once in `lib/install/52-apps.sh` instead.
+3. **Colors.** Add a template `stow/wal/.config/wal/templates/foo-colors` (the file name is what lands in `~/.cache/wal/`). It uses pywal's variables: the roles `{background}`, `{foreground}`, `{surface}`, `{elevated}`, `{border}`, `{muted}`, `{accent}`, `{accent2}`, `{selection}` (meanings in `themes/README.md`) and `{color0}`–`{color15}` for terminal colors; `.strip` drops the `#`. It is Python `str.format`, so a literal `{` or `}` is written `{{` or `}}`.
+   - Best: the app's config includes `~/.cache/wal/foo-colors` (most apps have an include or import option).
+   - If it can't include a file, link it from the place the app reads: add a `link_generated` line to `theme_links` in `lib/theme.sh`.
+   - If the app only takes colors from the terminal, configure it with ANSI color numbers (like bat, fzf, lazygit); nothing else is needed.
+4. **Reload.** If the running app can reload (a signal or a command), add it to `theme_reload` in `lib/theme.sh` as `hook <command> &` (`hook` caps it at 2 s and ignores failures; `&` lets it run alongside the others).
+5. **Start and keys.** Start it at login in `stow/hypr/.config/hypr/autostart.lua`, or as a systemd user service listed in `lib/install/70-services.sh`. A keybind goes in `binds.lua` with a description, so it shows up under `SUPER+K`.
+6. **Check.** `tests/run.sh --static` renders every template with every theme and fails on a typo; then `dot theme next` should recolor the app, and `dot doctor` should stay green.
 
 ## Testing
 

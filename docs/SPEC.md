@@ -414,7 +414,7 @@ All user actions go through one `dot` CLI so keybinds, menus and docs call the s
 | `PRINT` / `SHIFT+PRINT` | screenshot region / full output (grim + slurp) to clipboard and `~/Pictures/Screenshots` |
 | media, volume, brightness keys | `playerctl`, `wpctl`, `brightnessctl` (Wayle shows the OSD) |
 
-`SUPER+K` opens a Walker list of all binds, generated from `hyprctl binds -j`, so the cheat sheet never drifts from the config.
+`SUPER+K` opens a Walker list of all binds, generated from `hyprctl binds -j`, so the cheat sheet never drifts from the config. Implemented: every bind in `binds.lua` carries the Lua `description` flag; `bin/dot-keybinds` decodes `modmask` and shows `keys  description`.
 
 ## Implementation phases
 
