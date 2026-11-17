@@ -82,10 +82,15 @@ doctor_apps() {
   local log
   log=$(find "$HOME/.local/state/wayle" "$HOME/.cache/wayle" "$HOME/.local/share/wayle" -name 'wayle-shell*.log' -newermt '-1 day' 2>/dev/null | sort | tail -1 || true)
   if [[ -n $log ]]; then
+    # Known and harmless: Wayle probes other compositors (Mango, Niri) and
+    # starts before PipeWire has listed the sound devices. The Caps/Num Lock
+    # popup needs the input group, which is a deliberate choice.
+    local harmless='wayle_(mango|niri)::|service="(Mango|Niri)"|Default (output|input) device .* not found in store|osd::toggles: toggle OSD disabled'
     local n
-    n=$(grep -ciE ' (WARN|ERROR) ' "$log" || true)
-    if (( n )); then meh "Wayle logged $n warning(s)/error(s) today: grep -iE 'warn|error' $(pretty "$log")"
-    else ok "Wayle log clean today"; fi
+    n=$(grep -E ' (WARN|ERROR) ' "$log" | grep -cvE "$harmless" || true)
+    if (( n )); then meh "Wayle logged $n warning(s)/error(s) today: grep -E ' (WARN|ERROR) ' $(pretty "$log") | grep -vE '$harmless'"
+    else ok "Wayle log clean today (known harmless startup messages ignored)"; fi
+    grep -q 'toggle OSD disabled' "$log" && skip_ "Caps/Num Lock popup off (needs the input group; see README)"
   else skip_ "no Wayle log from today"; fi
 }
 
