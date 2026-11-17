@@ -16,7 +16,7 @@ Usage: dot <command> [args]
   restow              re-link configs only (install stage "stow")
   fonts               pick Nerd Fonts again from the list and install them
   theme list          available themes (* = active)
-  theme set <id>      switch every app to a theme
+  theme set <id>      switch every app to a theme (also: dot theme <id>)
   theme current       print the active theme id
   theme next | prev   switch to the next / previous theme
   background next | prev | list   the active theme's wallpapers (backgrounds/<id>/)
@@ -157,7 +157,9 @@ cmd_theme() {
              theme_set "$1"; log "theme: $1" ;;
     next)    local id; id=$(theme_step 1);  theme_set "$id"; log "theme: $id" ;;
     prev)    local id; id=$(theme_step -1); theme_set "$id"; log "theme: $id" ;;
-    *)       die "unknown: dot theme $sub. Use: list | set <id> | current | next | prev" ;;
+    *)       # Shorthand: dot theme <id> = dot theme set <id>
+             theme_exists "$sub" || die "unknown: dot theme $sub. Use: list | set <id> | <id> | current | next | prev"
+             theme_set "$sub"; log "theme: $sub" ;;
   esac
 }
 
