@@ -25,11 +25,11 @@ Usage: dot <command> [args]
   browser [current|list]    the browser the installer set up
   browser set <id>    switch browser (installs it, Vimium, default, colors)
   browser vimium      copy the theme's Vimium CSS to the clipboard
+  edit [<app>]        open an app's config folder in the repo (no app: list them)
   doctor              check links, theme, app configs, services and drivers
   help                show this help
 
 Also: dot-monitors [--force] writes ~/.config/hypr/local/monitors.lua.
-Coming later: edit.
 EOF
 }
 
@@ -128,6 +128,24 @@ cmd_packages() {
   esac
 }
 
+# dot edit <app>: open the app's folder in the repo (stow/<app>, or a
+# top-level folder such as packages or themes) in $EDITOR. Edits there are
+# live through the links; commit them from $DOTFILES_DIR.
+cmd_edit() {
+  local app=${1:-} dir
+  if [[ -z $app ]]; then
+    echo "Usage: dot edit <app>. Apps (stow/):"
+    ls "$DOTFILES_DIR/stow" | sed 's/^/  /'
+    echo "Also: packages, themes, browser, config, system"
+    return 0
+  fi
+  dir="$DOTFILES_DIR/stow/$app"
+  [[ -d $dir ]] || dir="$DOTFILES_DIR/$app"
+  [[ -d $dir && $app != */* && $app != .* ]] || die "no app '$app' (run: dot edit)"
+  cd "$dir"
+  exec ${EDITOR:-nvim} .
+}
+
 cmd_browser() {
   # shellcheck source=lib/browser.sh
   source "$DOTFILES_DIR/lib/browser.sh"
@@ -183,8 +201,7 @@ main() {
     theme)          cmd_theme "$@" ;;
     doctor)         source "$DOTFILES_DIR/lib/doctor.sh"; doctor_main ;;
     browser)        cmd_browser "$@" ;;
-    edit)
-      die "'dot $cmd' is not implemented yet (see docs/SPEC.md, Implementation phases)" ;;
+    edit)           cmd_edit "$@" ;;
     *) usage >&2; die "unknown command: $cmd" ;;
   esac
 }
