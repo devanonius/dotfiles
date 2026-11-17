@@ -1,10 +1,1 @@
-styling.palette.bg {background}
-styling.palette.surface {surface}
-styling.palette.elevated {elevated}
-styling.palette.fg {foreground}
-styling.palette.fg-muted {muted}
-styling.palette.primary {accent}
-styling.palette.red {color1}
-styling.palette.yellow {color3}
-styling.palette.green {color2}
-styling.palette.blue {color4}
+{{ bg = "{background}", surface = "{surface}", elevated = "{elevated}", fg = "{foreground}", fg-muted = "{muted}", primary = "{accent}", red = "{color1}", yellow = "{color3}", green = "{color2}", blue = "{color4}" }}

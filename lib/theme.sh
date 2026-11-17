@@ -94,26 +94,25 @@ theme_links() {
 # Run one reload hook: quietly, at most 2 seconds, never fatal.
 hook() { timeout 2 "$@" >/dev/null 2>&1 || true; }
 
+# Tell every running app to reload. They are independent, so they all start
+# at once (each still capped by hook's timeout); theme_set waits for them.
 theme_reload() {
-  local variant=$1
+  local variant=$1 scheme=prefer-dark gtk=adw-gtk3-dark
+  [[ $variant == light ]] && { scheme=prefer-light; gtk=adw-gtk3; }
   if has_cmd gsettings; then
-    if [[ $variant == light ]]; then
-      hook gsettings set org.gnome.desktop.interface color-scheme prefer-light
-      hook gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3
-    else
-      hook gsettings set org.gnome.desktop.interface color-scheme prefer-dark
-      hook gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
-    fi
+    hook gsettings set org.gnome.desktop.interface color-scheme "$scheme" &
+    hook gsettings set org.gnome.desktop.interface gtk-theme "$gtk" &
   fi
-  [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] && has_cmd hyprctl && hook hyprctl reload
-  hook pkill -USR2 -x ghostty
-  theme_wayle
-  theme_nvim_reload
+  [[ -n ${HYPRLAND_INSTANCE_SIGNATURE:-} ]] && has_cmd hyprctl && { hook hyprctl reload & }
+  hook pkill -USR2 -x ghostty &
+  theme_wayle &
+  theme_nvim_reload &
   # Browser toolbar color (Chromium family); see lib/browser.sh.
   # shellcheck source=lib/browser.sh
   source "$DOTFILES_DIR/lib/browser.sh"
-  browser_theme_apply
+  browser_theme_apply &
   # Walker reloads style.css itself.
+  return 0
 }
 
 # Every running Neovim listens on $XDG_RUNTIME_DIR/nvim.<pid>.0; ask each to
@@ -123,18 +122,20 @@ theme_nvim_reload() {
   has_cmd nvim || return 0
   for sock in "${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"/nvim.*; do
     [[ -S $sock ]] || continue
-    hook nvim --server "$sock" --remote-expr 'luaeval("require(\"dotfiles.theme\").reload()")'
+    hook nvim --server "$sock" --remote-expr 'luaeval("require(\"dotfiles.theme\").reload()")' &
   done
+  wait
 }
 
 # Wayle: write the palette through its CLI, which applies it live and keeps
 # it in ~/.config/wayle/runtime.toml for the next start.
 theme_wayle() {
-  local key value
   has_cmd wayle && [[ -f $WAL_CACHE/wayle-palette ]] || return 0
-  while read -r key value; do
-    [[ -n $key ]] && hook wayle config set "$key" "$value"
-  done < "$WAL_CACHE/wayle-palette"
+  # One call with the whole palette as a TOML table: every `wayle config set`
+  # loads the config and saves runtime.toml, and each save restyles the bar,
+  # so one call instead of ten keys means one restyle. 5 s: it loads the
+  # whole config first.
+  timeout 5 wayle config set styling.palette "$(<"$WAL_CACHE/wayle-palette")" >/dev/null 2>&1 || true
 }
 
 # Neovim reads the theme's plugin and colorscheme from this file
@@ -227,8 +228,9 @@ theme_set() {
   printf '%s\n' "$id" > "$THEME_STATE/name"
   theme_fingerprint "$id" > "$THEME_STATE/fingerprint"
   theme_reload "$variant"
-  background_apply "$id"
+  background_apply "$id" &
   theme_user_hooks "$id"
+  wait   # for the reloads started above
   flock -u "$lock"
   theme_notify "$id"
 }
