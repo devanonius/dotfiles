@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# dot-keybinds: the keybind cheat sheet (SUPER+K).
+#
+# Reads the binds Hyprland actually has (`hyprctl binds -j`), so the list
+# always matches the config, and shows each with its description (the
+# `description` flag in binds.lua) in Walker. `--print` writes them to stdout.
+set -euo pipefail
+
+print=0
+[[ ${1:-} == --print ]] && print=1
+
+json=$(hyprctl binds -j 2>/dev/null) || { echo "dot-keybinds: hyprctl failed (is Hyprland running?)" >&2; exit 1; }
+
+# modmask bits: SHIFT 1, CAPS 2, CTRL 4, ALT 8, MOD2 16, MOD3 32, SUPER 64, MOD5 128
+lines=$(jq -r '
+  def mods: [ (if . / 64 | floor % 2 == 1 then "SUPER" else empty end),
+              (if . / 4  | floor % 2 == 1 then "CTRL"  else empty end),
+              (if . / 8  | floor % 2 == 1 then "ALT"   else empty end),
+              (if .      % 2 == 1        then "SHIFT" else empty end) ];
+  def keyname: {"RETURN":"Enter","ESCAPE":"Esc","SPACE":"Space","PRINT":"Print",
+                "mouse:272":"Left drag","mouse:273":"Right drag",
+                "mouse_down":"Scroll down","mouse_up":"Scroll up"}[.] // (sub("^XF86"; "") );
+  .[]
+  | select(.submap == null or .submap == "")
+  | ((.modmask | mods) + [.key | keyname] | join(" + ")) as $keys
+  | (if (.description // "") != "" then .description else "\(.dispatcher) \(.arg // "")" end) as $what
+  | "\($keys)\t\($what)"' <<<"$json" | awk -F'\t' '!seen[$0]++' | column -t -s $'\t')
+
+if (( print )); then
+  printf '%s\n' "$lines"
+else
+  printf '%s\n' "$lines" | walker --dmenu --placeholder "Keybinds" >/dev/null 2>&1 || true
+fi
