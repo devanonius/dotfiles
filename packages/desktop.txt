@@ -29,6 +29,10 @@ bluez-utils
 upower
 power-profiles-daemon
 
+# wallpaper daemon Wayle drives (formerly swww; Wayle logs "cannot check
+# swww-daemon status" without it)
+awww
+
 # screenshots, clipboard, media keys
 grim
 slurp
