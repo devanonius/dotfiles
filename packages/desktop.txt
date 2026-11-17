@@ -61,5 +61,8 @@ noto-fonts-emoji
 # notify-send, for `dot theme set` notifications
 libnotify
 
+# xdg-settings: sets the default browser
+xdg-utils
+
 # blue-light filter, toggled from the bar
 hyprsunset

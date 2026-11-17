@@ -12,5 +12,6 @@
     "flatpak": []
   },
   "hardware": false,
-  "fonts": "none"
+  "fonts": "none",
+  "browser": "none"
 }

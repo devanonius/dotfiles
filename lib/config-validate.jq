@@ -13,13 +13,16 @@ def only_keys($path; $allowed):
 
 if type != "object" then "the top level must be a JSON object"
 else
-  only_keys(""; ["$schema", "modules", "hardware", "nvidia_driver", "fonts", "greeter", "extra_packages", "flatpak"]),
+  only_keys(""; ["$schema", "modules", "hardware", "nvidia_driver", "fonts", "browser", "greeter", "extra_packages", "flatpak"]),
 
   (select(has("greeter")) | .greeter
    | select(type != "string" or (test("^(keep|[a-z0-9][a-z0-9._+-]*)$") | not))
    | "greeter must be \"keep\" or a package name"),
 
   (select(has("hardware") and (.hardware | type) != "boolean") | "hardware must be true or false"),
+
+  (select(has("browser") and (.browser | IN("ask", "none", "firefox", "zen", "librewolf", "chromium", "chrome", "brave") | not))
+   | "browser must be \"ask\", \"none\" or one of: firefox, zen, librewolf, chromium, chrome, brave"),
 
   (select(has("nvidia_driver") and (.nvidia_driver | IN("auto", "open", "580xx", "none") | not))
    | "nvidia_driver must be \"auto\", \"open\", \"580xx\" or \"none\""),

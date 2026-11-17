@@ -1,0 +1,76 @@
+/* Vimium colors for the active dotfiles theme. Vimium keeps this in its own
+   settings: `dot browser vimium` copies it, then paste it into Vimium's
+   options under "CSS for Vimium UI" and Save. Selectors from Vimium's
+   content_scripts/vimium.css and pages/vomnibar_page.css, hud_page.css. */
+
+/* Link hints */
+div > .vimiumHintMarker {{
+  background: {surface};
+  border: 1px solid {accent};
+  border-radius: 4px;
+  box-shadow: none;
+}}
+div > .vimiumHintMarker span {{
+  color: {foreground};
+  font-family: "JetBrainsMono Nerd Font", monospace;
+  font-weight: bold;
+  font-size: 12px;
+  text-shadow: none;
+}}
+div > .vimiumHintMarker > .matchingCharacter {{
+  color: {accent};
+}}
+div > .vimiumActiveHintMarker span {{
+  color: {accent2} !important;
+}}
+
+/* Vomnibar (the URL/tab/bookmark bar) */
+#vomnibar {{
+  background: {background};
+  border: 1px solid {border};
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}}
+#vomnibar-search-area {{
+  background: {surface};
+  border-bottom: 1px solid {border};
+}}
+#vomnibar input {{
+  background: {background};
+  color: {foreground};
+  border: 1px solid {border};
+  box-shadow: none;
+}}
+#vomnibar ul {{
+  background: {background};
+}}
+#vomnibar li {{
+  background: {background};
+  border-bottom: 1px solid {surface};
+  color: {foreground};
+}}
+#vomnibar li.selected {{
+  background: {selection};
+}}
+#vomnibar li .source {{
+  color: {accent2};
+}}
+#vomnibar li .url {{
+  color: {muted};
+}}
+#vomnibar li em, #vomnibar li .title {{
+  color: {foreground};
+}}
+#vomnibar li .match, #vomnibar li em .match, #vomnibar li .title .match {{
+  color: {accent};
+  font-weight: bold;
+}}
+
+/* HUD (find mode, messages) */
+#hud {{
+  background: {surface};
+  color: {foreground};
+  border: 1px solid {border};
+  border-radius: 6px;
+  box-shadow: none;
+}}

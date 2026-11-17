@@ -123,6 +123,29 @@ doctor_services() {
   else skip_ "no systemd user session here (user services not checked)"; fi
 }
 
+doctor_browser() {
+  section "Browser"
+  # shellcheck source=lib/browser.sh
+  source "$DOTFILES_DIR/lib/browser.sh"
+  local id
+  id=$(browser_current)
+  if [[ -z $id || $id == none ]]; then skip_ "no browser set up (dot browser set <id>)"; return 0; fi
+  local bin; bin=$(browser_get "$id" bin)
+  has_cmd "$bin" && ok "$(browser_get "$id" name) installed" || bad "$(browser_get "$id" name) not installed (fix: dot browser set $id)"
+  if [[ $(browser_get "$id" family) == chromium ]]; then
+    local dir; dir=$(browser_get "$id" policy_dir)
+    [[ -f $dir/dotfiles-extensions.json ]] && ok "extension policy in $dir" || bad "no extension policy in $dir (fix: dot browser set $id)"
+    [[ -w $dir/dotfiles-theme.json ]] && ok "toolbar color policy writable" || meh "toolbar color policy missing or not yours (fix: dot browser set $id)"
+  else
+    local f; f="/etc/$(browser_get "$id" app)/policies/policies.json"
+    [[ -f $f ]] && ok "extension policy $f" || bad "no extension policy $f (fix: dot browser set $id)"
+  fi
+  if has_cmd xdg-settings; then
+    local cur want; cur=$(xdg-settings get default-web-browser 2>/dev/null || true); want=$(browser_desktop_file "$id")
+    [[ -n $want && $cur == "$want" ]] && ok "default browser: $cur" || meh "default browser is ${cur:-unset}, not ${want:-$id}"
+  fi
+}
+
 doctor_hardware() {
   section "Hardware"
   # shellcheck source=lib/detect.sh
@@ -147,6 +170,7 @@ doctor_main() {
   doctor_theme
   doctor_apps
   doctor_services
+  doctor_browser
   doctor_hardware
   echo
   if (( DOC_FAIL )); then

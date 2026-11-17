@@ -1,0 +1,8 @@
+{
+  "firefox":   { "name": "Firefox",       "package": "firefox",         "source": "repo", "family": "firefox",  "app": "firefox",   "bin": "firefox" },
+  "zen":       { "name": "Zen",           "package": "zen-browser-bin", "source": "aur",  "family": "firefox",  "app": "zen",       "bin": "zen-browser" },
+  "librewolf": { "name": "LibreWolf",     "package": "librewolf-bin",   "source": "aur",  "family": "firefox",  "app": "librewolf", "bin": "librewolf" },
+  "chromium":  { "name": "Chromium",      "package": "chromium",        "source": "repo", "family": "chromium", "policy_dir": "/etc/chromium/policies/managed",   "bin": "chromium" },
+  "chrome":    { "name": "Google Chrome", "package": "google-chrome",   "source": "aur",  "family": "chromium", "policy_dir": "/etc/opt/chrome/policies/managed", "bin": "google-chrome-stable" },
+  "brave":     { "name": "Brave",         "package": "brave-bin",       "source": "aur",  "family": "chromium", "policy_dir": "/etc/brave/policies/managed",      "bin": "brave" }
+}

@@ -8,3 +8,16 @@ case ":$PATH:" in
   *":$HOME/.local/bin:"*) ;;
   *) export PATH="$HOME/.local/bin:$PATH" ;;
 esac
+
+# The browser chosen by the installer (`dot browser set <id>`), for apps
+# that read $BROWSER. The desktop default is set with xdg-settings.
+if [ -r "$HOME/.local/state/dotfiles/browser.txt" ]; then
+  case $(cat "$HOME/.local/state/dotfiles/browser.txt") in
+    firefox) export BROWSER=firefox ;;
+    zen) export BROWSER=zen-browser ;;
+    librewolf) export BROWSER=librewolf ;;
+    chromium) export BROWSER=chromium ;;
+    chrome) export BROWSER=google-chrome-stable ;;
+    brave) export BROWSER=brave ;;
+  esac
+fi

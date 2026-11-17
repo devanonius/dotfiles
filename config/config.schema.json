@@ -84,6 +84,20 @@
         }
       ]
     },
+    "browser": {
+      "enum": [
+        "ask",
+        "none",
+        "firefox",
+        "zen",
+        "librewolf",
+        "chromium",
+        "chrome",
+        "brave"
+      ],
+      "default": "ask",
+      "description": "Web browser: installed with Vimium (through its enterprise policy), made the default, toolbar colored by the theme (Chromium family). \"ask\" picks once and remembers; `dot browser set <id>` changes it."
+    },
     "greeter": {
       "type": "string",
       "pattern": "^(keep|[a-z0-9][a-z0-9._+-]*)$",

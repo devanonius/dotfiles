@@ -8,6 +8,7 @@
   "hardware": true,
   "nvidia_driver": "auto",
   "fonts": "ask",
+  "browser": "ask",
   "greeter": "keep",
   "extra_packages": {
     "pacman": [],

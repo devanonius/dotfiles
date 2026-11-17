@@ -132,6 +132,21 @@ nvidia_choice() {
 CASES
 }
 check "NVIDIA driver choice by GPU generation" nvidia_choice
+
+# Browser policies: Vimium for both families; policies a Firefox-family
+# browser ships itself survive the merge.
+browser_policies() {
+  local shipped
+  shipped=$(mktemp)
+  echo '{"policies":{"DisableAppUpdate":true,"ExtensionSettings":{"x@y":{"installation_mode":"blocked"}}}}' > "$shipped"
+  bash -c 'source lib/common.sh; source lib/browser.sh
+    browser_chromium_extensions | jq -e ".ExtensionInstallForcelist == [\"dbepggeogbaibhgnhhndojpepiihcmeb;https://clients2.google.com/service/update2/crx\"]" >/dev/null || exit 1
+    browser_firefox_policies "$0" | jq -e ".policies.DisableAppUpdate == true
+      and .policies.ExtensionSettings[\"x@y\"].installation_mode == \"blocked\"
+      and .policies.ExtensionSettings[\"{d7742d87-e61d-4b78-b8a1-b469842139fa}\"].installation_mode == \"force_installed\"" >/dev/null || exit 1
+    jq -e "to_entries | all(.value | has(\"name\") and has(\"package\") and has(\"bin\") and (.family == \"chromium\" and has(\"policy_dir\") or .family == \"firefox\" and has(\"app\")))" browser/browsers.json >/dev/null' "$shipped"
+}
+check "browser policies (Vimium, merged Firefox policies)" browser_policies
 check "every template renders with every theme" python3 tests/fake-wal.py --check stow/wal/.config/wal/templates themes/*/colors.json
 # Spec, phase 4: text at least 4.5:1 and muted text at least 3:1 against the
 # background (WCAG contrast), so every theme stays readable.
