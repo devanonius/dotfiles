@@ -1,3 +1,4 @@
+# Description: the Hyprland desktop: bar, launcher, terminal, audio, Bluetooth, screenshots
 # Official-repo packages for the Hyprland session.
 # Verify names on Arch with: dot packages check
 

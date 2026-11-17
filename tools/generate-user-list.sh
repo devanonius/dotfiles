@@ -28,7 +28,8 @@ known() {
 
 list=$(pacman -Qqen | grep -vxF -f <(known) | grep -vE "$SYSTEM_RE" || true)
 
-header="# Owner's own packages (official repos). Hardware drivers, fonts and the
+header="# Description: the owner's everyday apps (edit packages/user.txt to make it yours)
+# Owner's own packages (official repos). Hardware drivers, fonts and the
 # login greeter are NOT listed here: they come from packages/hardware/,
 # the font picker, and the greeter setting. Regenerate with:
 #   tools/generate-user-list.sh"
