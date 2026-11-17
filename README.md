@@ -14,7 +14,7 @@ The full design is in [docs/SPEC.md](docs/SPEC.md). This README covers day-to-da
 | 4 | Theme catalog (19 themes), per-theme wallpapers, picker, Ghostty import tool | done, untested on hardware |
 | 5 | LazyVim (theme-following, live reload) and CLI tooling (bat, fzf, lazygit, lsd) | done, untested on hardware |
 | 6 | Hardware profiles (laptop/desktop, NVIDIA, monitors), migrations, `dot doctor` | done, untested on hardware |
-| 7 | Browser (with Vimium) and Qt theming | |
+| 7 | Browser (with Vimium) and Qt theming | done, untested on hardware |
 
 ## Install
 
@@ -90,6 +90,17 @@ hl.config({ input = { kb_layout = "se" } })
 
 The login screen archinstall set up is kept. Without one, log in on tty1 and Hyprland starts from `~/.zprofile` through uwsm.
 
+## Browser
+
+The installer asks once which browser to use (install config `"browser"`: `"ask"`, an id, or `"none"`): Firefox, Zen, LibreWolf, Chromium, Google Chrome or Brave. It installs it (AUR browsers as prebuilt `-bin` packages where they exist), makes it the default, and installs the extensions in `browser/extensions.json` (Vimium) through the browser's enterprise policy, so nothing is clicked by hand. `dot browser set <id>` switches later; `dot browser list` shows the ids.
+
+Colors:
+
+- **Chromium, Chrome, Brave:** the toolbar takes the theme's background color through the `BrowserThemeColor` policy, rewritten on every theme switch (applied at once on Chrome/Chromium 142+, otherwise on the next start).
+- **Firefox, LibreWolf:** the default "System theme — auto" follows GTK, which the theme engine colors; restart the browser after switching. Zen uses its own theming and is not colored.
+- Web pages follow the theme's dark/light setting.
+- **Vimium** keeps its look in its own settings (it does not read files or policies). After switching themes, run `dot browser vimium`, then in Vimium's options paste into "CSS for Vimium UI" and Save. This is the one manual step.
+
 ## Passwords and git credentials
 
 KeePassXC is the password manager and the system's Secret Service (the
@@ -119,6 +130,8 @@ Each folder in `stow/` mirrors your home folder and is linked file by file (`sto
 Machine-specific settings go in untracked files (`~/.config/hypr/local/`, `~/.config/zsh/local.zsh`, `~/.config/git/local`), so one repo serves every machine.
 
 **Laptop or desktop.** Some files exist in both variants in the repo, and the installer links the one for this machine (a battery means laptop): `~/.config/wayle/layout.toml` (desktops get no battery module) and `~/.config/hypr/idle.conf` (laptop: dim 2.5 min, lock 5, screen off 5.5, suspend 15; desktop: lock 10, screens off 15, no suspend).
+
+**Qt apps** (KeePassXC and others) use qt6ct with the Fusion style and a color scheme rendered from the theme (`~/.config/qt6ct/colors/dotfiles.conf`); they pick up a new theme when restarted.
 
 **Hardware files.** Stage `65-hardware` writes `~/.config/hypr/local/env.lua` once on NVIDIA machines (VA-API and GLX variables; hybrid laptops get a commented GPU-selection file instead). With two or more monitors, `dot-monitors` writes `local/monitors.lua` on first login: each output at its preferred mode left to right, workspaces 1–5 on the leftmost and 6–10 on the next. Both files are yours afterwards; the installer never overwrites them.
 

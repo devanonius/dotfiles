@@ -9,6 +9,7 @@
 #   3. sets GTK's dark/light preference from the theme's variant
 #   4. tells running apps to reload (each hook: 2 s timeout, never fatal)
 #   5. runs ~/.config/dotfiles/hooks/theme-set.d/* with the theme id as $1
+#      (also the Chromium-family browser toolbar color, through its policy)
 #   6. shows the theme's wallpaper (backgrounds/<id>/) or its background color
 #   7. shows a notification with the new theme's name
 
@@ -77,6 +78,8 @@ theme_links() {
   link_generated "$cfg/gtk-4.0/gtk.css" "$WAL_CACHE/gtk.css"
   link_generated "$cfg/walker/themes/dotfiles/style.css" "$WAL_CACHE/walker.css"
   link_generated "$cfg/btop/themes/dotfiles.theme" "$WAL_CACHE/btop.theme"
+  # Qt apps (KeePassXC, ...) through qt6ct; read when a Qt app starts.
+  link_generated "$cfg/qt6ct/colors/dotfiles.conf" "$WAL_CACHE/qt6ct-colors.conf"
   # btop rewrites btop.conf itself, so it is not tracked; only make sure it
   # uses the generated theme.
   local btop="$cfg/btop/btop.conf"
@@ -106,6 +109,10 @@ theme_reload() {
   hook pkill -USR2 -x ghostty
   theme_wayle
   theme_nvim_reload
+  # Browser toolbar color (Chromium family); see lib/browser.sh.
+  # shellcheck source=lib/browser.sh
+  source "$DOTFILES_DIR/lib/browser.sh"
+  browser_theme_apply
   # Walker reloads style.css itself.
 }
 
