@@ -1,0 +1,8 @@
+{
+  "name": "Catppuccin Macchiato",
+  "family": "catppuccin",
+  "variant": "dark",
+  "nvim_plugin": "catppuccin/nvim",
+  "nvim_scheme": "catppuccin-macchiato",
+  "source": "https://github.com/catppuccin/ghostty themes/catppuccin-macchiato.conf and https://github.com/catppuccin/palette palette.json"
+}

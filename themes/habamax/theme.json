@@ -1,0 +1,8 @@
+{
+  "name": "Habamax",
+  "family": "habamax",
+  "variant": "dark",
+  "nvim_plugin": "",
+  "nvim_scheme": "habamax",
+  "source": "Vim runtime/colors/habamax.vim (g:terminal_ansi_colors and GUI highlight colors)"
+}

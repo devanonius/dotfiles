@@ -1,0 +1,8 @@
+{
+  "name": "Rosé Pine",
+  "family": "rose-pine",
+  "variant": "dark",
+  "nvim_plugin": "rose-pine/neovim",
+  "nvim_scheme": "rose-pine",
+  "source": "https://github.com/rose-pine/ghostty dist/rose-pine and https://github.com/rose-pine/neovim lua/rose-pine/palette.lua (main)"
+}

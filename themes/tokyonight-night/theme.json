@@ -4,5 +4,5 @@
   "variant": "dark",
   "nvim_plugin": "folke/tokyonight.nvim",
   "nvim_scheme": "tokyonight-night",
-  "source": "https://github.com/folke/tokyonight.nvim/blob/main/extras/ghostty/tokyonight_night"
+  "source": "https://github.com/folke/tokyonight.nvim extras/ghostty/tokyonight_night and extras/lua/tokyonight_night.lua"
 }

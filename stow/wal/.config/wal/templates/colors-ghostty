@@ -2,7 +2,7 @@
 background = {background}
 foreground = {foreground}
 cursor-color = {cursor}
-selection-background = {color8}
+selection-background = {selection}
 selection-foreground = {foreground}
 palette = 0={color0}
 palette = 1={color1}

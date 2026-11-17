@@ -44,7 +44,10 @@ def variables(theme_file):
     data = json.load(open(theme_file))
     out = {k: Color(v) for k, v in data["special"].items()}
     out.update({k: Color(v) for k, v in data["colors"].items()})
-    missing = [k for k in ["background", "foreground", "cursor"] + [f"color{i}" for i in range(16)] if k not in out]
+    required = ["background", "foreground", "cursor",
+                # UI roles every theme must define (themes/README.md)
+                "surface", "elevated", "border", "muted", "accent", "accent2", "selection"]
+    missing = [k for k in required + [f"color{i}" for i in range(16)] if k not in out]
     if missing:
         raise SystemExit(f"{theme_file}: missing {', '.join(missing)}")
     for k, v in out.items():

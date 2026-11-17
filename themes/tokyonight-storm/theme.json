@@ -1,0 +1,8 @@
+{
+  "name": "Tokyo Night Storm",
+  "family": "tokyonight",
+  "variant": "dark",
+  "nvim_plugin": "folke/tokyonight.nvim",
+  "nvim_scheme": "tokyonight-storm",
+  "source": "https://github.com/folke/tokyonight.nvim extras/ghostty/tokyonight_storm and extras/lua/tokyonight_storm.lua"
+}

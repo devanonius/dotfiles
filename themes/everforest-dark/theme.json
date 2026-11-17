@@ -1,0 +1,8 @@
+{
+  "name": "Everforest Dark",
+  "family": "everforest",
+  "variant": "dark",
+  "nvim_plugin": "neanias/everforest-nvim",
+  "nvim_scheme": "everforest",
+  "source": "terminal: iTerm2-Color-Schemes ghostty/Everforest Dark Med; UI: https://github.com/neanias/everforest-nvim lua/everforest/colours.lua (medium, dark)"
+}

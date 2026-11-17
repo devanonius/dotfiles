@@ -1,0 +1,8 @@
+{
+  "name": "Catppuccin Frappé",
+  "family": "catppuccin",
+  "variant": "dark",
+  "nvim_plugin": "catppuccin/nvim",
+  "nvim_scheme": "catppuccin-frappe",
+  "source": "https://github.com/catppuccin/ghostty themes/catppuccin-frappe.conf and https://github.com/catppuccin/palette palette.json"
+}

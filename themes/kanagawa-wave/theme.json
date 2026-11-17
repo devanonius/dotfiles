@@ -1,0 +1,8 @@
+{
+  "name": "Kanagawa Wave",
+  "family": "kanagawa",
+  "variant": "dark",
+  "nvim_plugin": "rebelot/kanagawa.nvim",
+  "nvim_scheme": "kanagawa-wave",
+  "source": "https://github.com/rebelot/kanagawa.nvim extras/ghostty/kanagawa-wave and lua/kanagawa/colors.lua"
+}

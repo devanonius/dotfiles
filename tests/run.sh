@@ -133,6 +133,29 @@ CASES
 }
 check "NVIDIA driver choice by GPU generation" nvidia_choice
 check "every template renders with every theme" python3 tests/fake-wal.py --check stow/wal/.config/wal/templates themes/*/colors.json
+# Spec, phase 4: text at least 4.5:1 and muted text at least 3:1 against the
+# background (WCAG contrast), so every theme stays readable.
+contrast() {
+  python3 - themes/*/colors.json <<'PY'
+import json, sys
+def lum(h):
+    c = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+def ratio(a, b):
+    hi, lo = sorted([lum(a), lum(b)], reverse=True)
+    return (hi + 0.05) / (lo + 0.05)
+bad = 0
+for f in sys.argv[1:]:
+    s = json.load(open(f))["special"]
+    for key, need in [("foreground", 4.5), ("muted", 3.0)]:
+        r = ratio(s[key], s["background"])
+        if r < need:
+            print(f"{f}: {key} {s[key]} on {s['background']} is {r:.2f}:1, needs {need}:1"); bad = 1
+sys.exit(bad)
+PY
+}
+check "every theme has readable text and muted text" contrast
 if [[ -n $LUAC ]]; then
   rendered_lua() {
     local out; out=$(mktemp -d)

@@ -1,0 +1,8 @@
+{
+  "name": "Tokyo Night Day",
+  "family": "tokyonight",
+  "variant": "light",
+  "nvim_plugin": "folke/tokyonight.nvim",
+  "nvim_scheme": "tokyonight-day",
+  "source": "https://github.com/folke/tokyonight.nvim extras/ghostty/tokyonight_day and extras/lua/tokyonight_day.lua"
+}

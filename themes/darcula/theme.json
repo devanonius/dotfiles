@@ -1,0 +1,8 @@
+{
+  "name": "Darcula",
+  "family": "darcula",
+  "variant": "dark",
+  "nvim_plugin": "xiantang/darcula-dark.nvim",
+  "nvim_scheme": "darcula-dark",
+  "source": "terminal: iTerm2-Color-Schemes ghostty/JetBrains Darcula; UI: https://github.com/xiantang/darcula-dark.nvim lua/darcula/default_colors.lua (Normal bg dark, fg grey)"
+}

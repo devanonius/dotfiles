@@ -2,7 +2,14 @@
   "special": {
     "background": "#282828",
     "foreground": "#ebdbb2",
-    "cursor": "#ebdbb2"
+    "cursor": "#ebdbb2",
+    "surface": "#3c3836",
+    "elevated": "#504945",
+    "border": "#665c54",
+    "muted": "#928374",
+    "accent": "#83a598",
+    "accent2": "#d3869b",
+    "selection": "#665c54"
   },
   "colors": {
     "color0": "#282828",

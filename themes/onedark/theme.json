@@ -1,0 +1,8 @@
+{
+  "name": "One Dark",
+  "family": "onedark",
+  "variant": "dark",
+  "nvim_plugin": "navarasu/onedark.nvim",
+  "nvim_scheme": "onedark",
+  "source": "https://github.com/navarasu/onedark.nvim lua/onedark/palette.lua (dark) with the terminal.lua mapping"
+}

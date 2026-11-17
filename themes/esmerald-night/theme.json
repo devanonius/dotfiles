@@ -1,0 +1,8 @@
+{
+  "name": "Esmerald Night",
+  "family": "esmerald",
+  "variant": "dark",
+  "nvim_plugin": "",
+  "nvim_scheme": "esmerald-night",
+  "source": "https://github.com/esthorace/esmerald themes/esmerald-night.json (MIT). terminal.ansi* blended over terminal.background where they carry alpha; terminal.ansiBlack/BrightBlack are not defined upstream, so color0 = editorWidget.background and color8 = the comment color"
+}

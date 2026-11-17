@@ -1,0 +1,8 @@
+{
+  "name": "Catppuccin Latte",
+  "family": "catppuccin",
+  "variant": "light",
+  "nvim_plugin": "catppuccin/nvim",
+  "nvim_scheme": "catppuccin-latte",
+  "source": "https://github.com/catppuccin/ghostty themes/catppuccin-latte.conf and https://github.com/catppuccin/palette palette.json"
+}

@@ -1,0 +1,8 @@
+{
+  "name": "Gruvbox Light",
+  "family": "gruvbox",
+  "variant": "light",
+  "nvim_plugin": "ellisonleao/gruvbox.nvim",
+  "nvim_scheme": "gruvbox",
+  "source": "https://github.com/morhetz/gruvbox colors/gruvbox.vim (palette and terminal_color mapping)"
+}

@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# import-ghostty-theme NAME|FILE ID: start themes/ID/ from a Ghostty theme.
+#
+# Ghostty ships hundreds of themes (from iTerm2-Color-Schemes) in
+# /usr/share/ghostty/themes/; list them with `ghostty +list-themes --plain`.
+# This copies the 16 ANSI colors, background, foreground, cursor and
+# selection into themes/ID/colors.json and writes a theme.json skeleton.
+#
+# The UI roles (surface, elevated, border, muted, accent, accent2) are left
+# as "#TODO": fill them from the theme's upstream project (its Neovim or
+# editor palette), never by eye. The tests refuse a theme until they are set.
+# See themes/README.md.
+set -euo pipefail
+
+DOTFILES_DIR=$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/.." && pwd)
+
+[[ $# == 2 ]] || { sed -n '2,13s/^# \{0,1\}//p' "$0"; exit 2; }
+src=$1 id=$2
+[[ -f $src ]] || src="/usr/share/ghostty/themes/$1"
+[[ -f $src ]] || { echo "no Ghostty theme '$1' (see: ghostty +list-themes --plain)" >&2; exit 1; }
+[[ $id =~ ^[a-z0-9][a-z0-9-]*$ ]] || { echo "theme id must be lowercase letters, digits and dashes" >&2; exit 1; }
+dir="$DOTFILES_DIR/themes/$id"
+[[ -e $dir ]] && { echo "themes/$id already exists" >&2; exit 1; }
+
+mkdir -p "$dir"
+python3 - "$src" "$dir" "$1" "$id" <<'PY'
+import json, sys
+src, out, name, tid = sys.argv[1:]
+pal, kv = {}, {}
+for line in open(src):
+    line = line.strip()
+    if not line or line.startswith("#") or "=" not in line:
+        continue
+    k, v = (x.strip() for x in line.split("=", 1))
+    if k == "palette":
+        i, c = v.split("=", 1)
+        pal[int(i)] = c
+    else:
+        kv[k] = v
+norm = lambda c: ("#" + c.strip().lower().lstrip("#"))
+missing = [i for i in range(16) if i not in pal]
+if missing:
+    sys.exit(f"{src}: palette entries {missing} missing")
+fg = norm(kv["foreground"])
+special = {
+    "background": norm(kv["background"]),
+    "foreground": fg,
+    "cursor": norm(kv.get("cursor-color", fg)),
+    "surface": "#TODO", "elevated": "#TODO", "border": "#TODO",
+    "muted": "#TODO", "accent": "#TODO", "accent2": "#TODO",
+    "selection": norm(kv["selection-background"]) if "selection-background" in kv else "#TODO",
+}
+json.dump({"special": special, "colors": {f"color{i}": norm(pal[i]) for i in range(16)}},
+          open(f"{out}/colors.json", "w"), indent=2)
+open(f"{out}/colors.json", "a").write("\n")
+json.dump({"name": name, "family": tid.split("-")[0], "variant": "dark",
+           "nvim_plugin": "", "nvim_scheme": "TODO",
+           "source": f"Ghostty built-in theme '{name}' (iTerm2-Color-Schemes); UI roles from: TODO"},
+          open(f"{out}/theme.json", "w"), indent=2)
+open(f"{out}/theme.json", "a").write("\n")
+PY
+echo "wrote themes/$id/colors.json and theme.json; fill every TODO, then: dot theme set $id"

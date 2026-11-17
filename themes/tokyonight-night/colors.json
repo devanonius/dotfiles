@@ -2,7 +2,14 @@
   "special": {
     "background": "#1a1b26",
     "foreground": "#c0caf5",
-    "cursor": "#c0caf5"
+    "cursor": "#c0caf5",
+    "surface": "#16161e",
+    "elevated": "#292e42",
+    "border": "#3b4261",
+    "muted": "#737aa2",
+    "accent": "#7aa2f7",
+    "accent2": "#bb9af7",
+    "selection": "#283457"
   },
   "colors": {
     "color0": "#15161e",
@@ -14,12 +21,12 @@
     "color6": "#7dcfff",
     "color7": "#a9b1d6",
     "color8": "#414868",
-    "color9": "#f7768e",
-    "color10": "#9ece6a",
-    "color11": "#e0af68",
-    "color12": "#7aa2f7",
-    "color13": "#bb9af7",
-    "color14": "#7dcfff",
+    "color9": "#ff899d",
+    "color10": "#9fe044",
+    "color11": "#faba4a",
+    "color12": "#8db0ff",
+    "color13": "#c7a9ff",
+    "color14": "#a4daff",
     "color15": "#c0caf5"
   }
 }

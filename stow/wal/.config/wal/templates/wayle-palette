@@ -1,9 +1,9 @@
 styling.palette.bg {background}
-styling.palette.surface {color0}
-styling.palette.elevated {color8}
+styling.palette.surface {surface}
+styling.palette.elevated {elevated}
 styling.palette.fg {foreground}
-styling.palette.fg-muted {color7}
-styling.palette.primary {color4}
+styling.palette.fg-muted {muted}
+styling.palette.primary {accent}
 styling.palette.red {color1}
 styling.palette.yellow {color3}
 styling.palette.green {color2}

@@ -1,0 +1,8 @@
+{
+  "name": "Esmerald Light",
+  "family": "esmerald",
+  "variant": "light",
+  "nvim_plugin": "",
+  "nvim_scheme": "esmerald-light",
+  "source": "https://github.com/esthorace/esmerald themes/esmerald-light.json (MIT). terminal.ansi* blended over terminal.background where they carry alpha"
+}

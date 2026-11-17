@@ -3,9 +3,9 @@
    theme, which it inherits. Walker picks up changes without a restart. */
 @define-color bg {background};
 @define-color fg {foreground};
-@define-color accent {color4};
-@define-color muted {color8};
-@define-color surface {color0};
+@define-color accent {accent};
+@define-color muted {muted};
+@define-color surface {surface};
 
 .box-wrapper {{
   background: @bg;

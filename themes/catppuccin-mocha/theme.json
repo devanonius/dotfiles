@@ -1,0 +1,8 @@
+{
+  "name": "Catppuccin Mocha",
+  "family": "catppuccin",
+  "variant": "dark",
+  "nvim_plugin": "catppuccin/nvim",
+  "nvim_scheme": "catppuccin-mocha",
+  "source": "https://github.com/catppuccin/ghostty themes/catppuccin-mocha.conf and https://github.com/catppuccin/palette palette.json"
+}
